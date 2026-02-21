@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { useCities } from "@/hooks/useCities";
+import { useTherapists } from "@/hooks/useTherapists";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -20,24 +23,6 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-const cities = [
-  "Jakarta",
-  "Surabaya",
-  "Bandung",
-  "Medan",
-  "Semarang",
-  "Makassar",
-  "Palembang",
-  "Tangerang",
-  "Depok",
-  "Bekasi",
-  "Bogor",
-  "Yogyakarta",
-  "Malang",
-  "Solo",
-  "Denpasar",
-];
-
 const timeSlots = [
   "08:00",
   "09:00",
@@ -51,36 +36,26 @@ const timeSlots = [
   "18:00",
 ];
 
-const therapists = [
-  {
-    id: 1,
-    name: "Dr. Ahmad Wijaya, S.Ft",
-    specialty: "Sports Physiotherapy",
-    experience: "8 tahun",
-    rating: "4.9",
-  },
-  {
-    id: 2,
-    name: "Dr. Siti Nurhaliza, S.Ft",
-    specialty: "Orthopedic Physiotherapy",
-    experience: "6 tahun",
-    rating: "4.8",
-  },
-  {
-    id: 3,
-    name: "Dr. Budi Santoso, S.Ft",
-    specialty: "Neurological Physiotherapy",
-    experience: "10 tahun",
-    rating: "4.9",
-  },
-];
+const PENDING_BOOKING_KEY = "fisiobook_pending_booking";
 
 export default function BookingPage() {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [selectedCity, setSelectedCity] = useState("");
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuthContext();
+  const { cities, isLoading: citiesLoading } = useCities();
+  const [searchParams] = useSearchParams();
+
+  const cityIdFromHome = searchParams.get("cityId") || "";
+  const cityNameFromHome = searchParams.get("cityName") || "";
+  const fromHome = Boolean(cityNameFromHome);
+
+  const [currentStep, setCurrentStep] = useState(fromHome ? 2 : 1);
+  const [selectedCityId, setSelectedCityId] = useState(cityIdFromHome);
+  const [selectedCity, setSelectedCity] = useState(cityNameFromHome);
   const [selectedDate, setSelectedDate] = useState(undefined);
   const [selectedTime, setSelectedTime] = useState("");
   const [selectedTherapist, setSelectedTherapist] = useState(null);
+
+  const { therapists, isLoading: therapistsLoading, error: therapistsError } = useTherapists(selectedCityId);
 
   const canProceedStep1 = selectedCity;
   const canProceedStep2 = selectedDate && selectedTime;
@@ -93,8 +68,27 @@ export default function BookingPage() {
   };
 
   const handleBack = () => {
-    if (currentStep > 1) {
+    if (currentStep === 2 && fromHome) {
+      navigate("/");
+    } else if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleProceedToPayment = () => {
+    const bookingData = {
+      city: selectedCity,
+      date: selectedDate?.toISOString(),
+      time: selectedTime,
+      therapistId: selectedTherapist,
+      therapist: therapists.find((t) => t.code === selectedTherapist) || null,
+    };
+
+    if (!isAuthenticated) {
+      sessionStorage.setItem(PENDING_BOOKING_KEY, JSON.stringify(bookingData));
+      navigate("/login", { state: { from: { pathname: "/payment" } } });
+    } else {
+      navigate("/payment", { state: { bookingData } });
     }
   };
 
@@ -119,6 +113,11 @@ export default function BookingPage() {
                   <ArrowLeft className="h-5 w-5" />
                 )}
               </Button>
+              {fromHome && currentStep === 2 && (
+                <span className="ml-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                  {selectedCity}
+                </span>
+              )}
               <div>
                 <h1 className="text-lg font-bold">Booking</h1>
                 <p className="text-xs text-muted-foreground">
@@ -158,14 +157,25 @@ export default function BookingPage() {
 
             <div className="space-y-3">
               <label className="text-sm font-medium">Kota atau Kabupaten</label>
-              <Select value={selectedCity} onValueChange={setSelectedCity}>
+              <Select
+                value={selectedCityId}
+                onValueChange={(id) => {
+                  const city = cities.find((c) => String(c.id) === id);
+                  setSelectedCityId(id);
+                  setSelectedCity(city?.name || "");
+                  setSelectedTherapist(null);
+                }}
+                disabled={citiesLoading}
+              >
                 <SelectTrigger className="h-14 rounded-xl border-border">
-                  <SelectValue placeholder="Pilih kota" />
+                  <SelectValue
+                    placeholder={citiesLoading ? "Memuat kota..." : "Pilih kota"}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {cities.map((city) => (
-                    <SelectItem key={city} value={city}>
-                      {city}
+                    <SelectItem key={city.id} value={String(city.id)}>
+                      {city.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -278,12 +288,27 @@ export default function BookingPage() {
             </div>
 
             <div className="space-y-3">
-              {therapists.map((therapist) => (
+              {therapistsLoading && (
+                <div className="py-10 text-center text-sm text-muted-foreground">
+                  Memuat daftar terapis...
+                </div>
+              )}
+              {!therapistsLoading && therapistsError && (
+                <div className="py-10 text-center text-sm text-destructive">
+                  {therapistsError}
+                </div>
+              )}
+              {!therapistsLoading && !therapistsError && therapists.length === 0 && (
+                <div className="py-10 text-center text-sm text-muted-foreground">
+                  Tidak ada terapis tersedia di kota ini.
+                </div>
+              )}
+              {!therapistsLoading && therapists.map((therapist) => (
                 <button
-                  key={therapist.id}
-                  onClick={() => setSelectedTherapist(therapist.id)}
+                  key={therapist.code}
+                  onClick={() => setSelectedTherapist(therapist.code)}
                   className={`w-full rounded-xl border p-4 text-left transition-all ${
-                    selectedTherapist === therapist.id
+                    selectedTherapist === therapist.code
                       ? "border-primary bg-primary/5 shadow-sm"
                       : "border-border hover:border-primary/50 hover:bg-secondary/50"
                   }`}
@@ -293,14 +318,19 @@ export default function BookingPage() {
                       <User className="h-6 w-6" />
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-bold">{therapist.name}</h4>
+                      <div className="flex items-start justify-between gap-2">
+                        <h4 className="font-bold">{therapist.name}</h4>
+                        <span className="shrink-0 text-xs font-semibold text-primary">
+                          {therapist.price}
+                        </span>
+                      </div>
                       <p className="text-xs text-muted-foreground">
-                        {therapist.specialty}
+                        {therapist.field}
                       </p>
                       <div className="mt-2 flex items-center gap-3 text-xs">
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {therapist.experience}
+                          {therapist.yearOnField} tahun
                         </span>
                         <span className="flex items-center gap-1">
                           <Star className="h-3 w-3 fill-current text-chart-3" />
@@ -314,7 +344,7 @@ export default function BookingPage() {
             </div>
 
             {/* Summary */}
-            <Card className="rounded-2xl bg-gradient-to-br from-primary/5 to-accent/5 p-6 shadow-sm">
+            {selectedTherapist && <Card className="rounded-2xl bg-gradient-to-br from-primary/5 to-accent/5 p-6 shadow-sm">
               <h3 className="mb-4 text-sm font-semibold">Ringkasan Booking</h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-sm">
@@ -335,42 +365,33 @@ export default function BookingPage() {
                   <span className="text-muted-foreground">Terapis</span>
                   <span className="font-semibold">
                     {selectedTherapist
-                      ? therapists
-                          .find((t) => t.id === selectedTherapist)
-                          ?.name.split(",")[0]
+                      ? therapists.find((t) => t.code === selectedTherapist)?.name.split(",")[0]
                       : "-"}
                   </span>
                 </div>
                 <div className="border-t border-border pt-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">Total</span>
-                    <span className="text-2xl font-bold">Rp 150.000</span>
+                    <span className="text-2xl font-bold">
+                      {selectedTherapist
+                        ? therapists.find((t) => t.code === selectedTherapist)?.price
+                        : "-"}
+                    </span>
                   </div>
                 </div>
               </div>
-            </Card>
+            </Card>}
 
             <div className="pt-4">
-              {canProceedStep3 ? (
-                <Button
-                  size="lg"
-                  className="h-14 w-full rounded-full bg-gradient-to-r from-primary to-accent font-semibold shadow-lg hover:shadow-xl"
-                  asChild
-                >
-                  <Link to="/payment">
-                    Lanjut Pembayaran
-                    <ChevronRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-              ) : (
-                <Button
-                  size="lg"
-                  className="h-14 w-full rounded-full bg-gradient-to-r from-primary to-accent font-semibold shadow-lg hover:shadow-xl disabled:opacity-50"
-                  disabled
-                >
-                  Pilih Terapis
-                </Button>
-              )}
+              <Button
+                size="lg"
+                className="h-14 w-full rounded-full bg-gradient-to-r from-primary to-accent font-semibold shadow-lg hover:shadow-xl disabled:opacity-50"
+                disabled={!canProceedStep3}
+                onClick={handleProceedToPayment}
+              >
+                Lanjut Pembayaran
+                <ChevronRight className="ml-2 h-5 w-5" />
+              </Button>
             </div>
           </div>
         )}

@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, CreditCard, Wallet, Building2 } from "lucide-react";
+import { ArrowLeft, CreditCard, Wallet, Building2, MapPin, CalendarIcon, Clock, User } from "lucide-react";
 
 const bankOptions = [
   { id: "bca", name: "BCA", logo: "💳" },
@@ -23,14 +23,18 @@ const ewalletOptions = [
 
 export default function PaymentPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [paymentMethod, setPaymentMethod] = useState("ewallet");
   const [selectedOption, setSelectedOption] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const bookingData = location.state?.bookingData || null;
+  const bookingDate = bookingData?.date ? new Date(bookingData.date) : null;
+
   const handlePayment = async () => {
     setIsProcessing(true);
     setTimeout(() => {
-      navigate("/payment/success");
+      navigate("/payment/success", { state: { bookingData } });
     }, 2000);
   };
 
@@ -50,7 +54,7 @@ export default function PaymentPage() {
 
       <main className="px-4 py-6 pb-24">
         {/* Order Summary Card */}
-        <Card className="mb-6 overflow-hidden rounded-2xl border-0 bg-gradient-to-br from-primary/10 to-accent/10 shadow-lg">
+        <Card className="mb-4 overflow-hidden rounded-2xl border-0 bg-gradient-to-br from-primary/10 to-accent/10 shadow-lg">
           <div className="p-6">
             <p className="mb-4 text-sm text-muted-foreground">
               Total Pembayaran
@@ -68,6 +72,70 @@ export default function PaymentPage() {
             </div>
           </div>
         </Card>
+
+        {/* Booking Detail */}
+        {bookingData && (
+          <Card className="mb-6 overflow-hidden rounded-2xl border-0 shadow-lg">
+            <div className="p-6">
+              <h3 className="mb-4 text-sm font-semibold">Detail Booking</h3>
+              <div className="space-y-3">
+                {bookingData.city && (
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
+                      <MapPin className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex flex-1 items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Lokasi</span>
+                      <span className="font-semibold">{bookingData.city}</span>
+                    </div>
+                  </div>
+                )}
+                {bookingDate && (
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
+                      <CalendarIcon className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex flex-1 items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Tanggal</span>
+                      <span className="font-semibold">
+                        {bookingDate.toLocaleDateString("id-ID", {
+                          weekday: "long",
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {bookingData.time && (
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
+                      <Clock className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex flex-1 items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Waktu</span>
+                      <span className="font-semibold">{bookingData.time} WIB</span>
+                    </div>
+                  </div>
+                )}
+                {bookingData.therapist && (
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
+                      <User className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex flex-1 items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Terapis</span>
+                      <span className="font-semibold">
+                        {bookingData.therapist.name.split(",")[0]}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Payment Method Title */}
         <h2 className="mb-4 text-lg font-bold">Pilih Metode Pembayaran</h2>

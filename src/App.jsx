@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { BottomNav } from "@/components/bottom-nav";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import HomePage from "@/pages/Home";
 import BookingPage from "@/pages/Booking";
 import ChatPage from "@/pages/Chat";
@@ -10,11 +12,12 @@ import PaymentSuccessPage from "@/pages/payment/PaymentSuccess";
 import LoginPage from "@/pages/Login";
 import RegisterPage from "@/pages/Register";
 import VerifyEmailPage from "@/pages/VerifyEmail";
+import SettingsPage from "@/pages/Settings";
 
 function AppContent() {
   const location = useLocation();
   const hideBottomNav =
-    ["/login", "/register", "/verify-email"].includes(location.pathname) ||
+    ["/login", "/register", "/verify-email", "/settings"].includes(location.pathname) ||
     location.pathname.startsWith("/history/");
 
   return (
@@ -24,14 +27,43 @@ function AppContent() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/booking" element={<BookingPage />} />
-            <Route path="/chat" element={<ChatPage />} />
-            <Route path="/history" element={<HistoryPage />} />
-            <Route path="/history/:id" element={<HistoryDetailPage />} />
+            <Route
+              path="/chat"
+              element={
+                <ProtectedRoute>
+                  <ChatPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/history"
+              element={
+                <ProtectedRoute>
+                  <HistoryPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/history/:id"
+              element={
+                <ProtectedRoute>
+                  <HistoryDetailPage />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/payment/success" element={<PaymentSuccessPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/verify-email" element={<VerifyEmailPage />} />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <SettingsPage />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </div>
         {!hideBottomNav && <BottomNav />}
@@ -43,7 +75,9 @@ function AppContent() {
 function App() {
   return (
     <BrowserRouter>
-      <AppContent />
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </BrowserRouter>
   );
 }

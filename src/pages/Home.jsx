@@ -1,15 +1,145 @@
-import { Link } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Calendar,
   MapPin,
   MessageSquare,
   Clock,
   ChevronRight,
+  Search,
+  X,
 } from "lucide-react";
+import { useCities } from "@/hooks/useCities";
+import { useAuthContext } from "@/contexts/AuthContext";
+
+function getInitials(name) {
+  if (!name) return null;
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function CitySearch() {
+  const { cities, isLoading } = useCities();
+  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState(null);
+  const containerRef = useRef(null);
+
+  const filtered =
+    query.trim().length === 0
+      ? cities
+      : cities.filter((c) =>
+          c.name.toLowerCase().includes(query.toLowerCase())
+        );
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSelect = (city) => {
+    setSelected(city);
+    setQuery(city.name);
+    setOpen(false);
+  };
+
+  const handleClear = () => {
+    setSelected(null);
+    setQuery("");
+    setOpen(false);
+  };
+
+  const handleBooking = () => {
+    if (selected) {
+      navigate(`/booking?cityId=${selected.id}&cityName=${encodeURIComponent(selected.name)}`);
+    } else {
+      navigate("/booking");
+    }
+  };
+
+  return (
+    <div className="mb-4" ref={containerRef}>
+      <p className="mb-2 text-sm font-medium text-primary-foreground/80">
+        Cari kota Anda
+      </p>
+      <div className="relative">
+        <div className="relative flex items-center">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          <Input
+            className="h-11 rounded-xl border-0 bg-white pl-9 pr-9 text-foreground shadow-md placeholder:text-muted-foreground focus-visible:ring-primary"
+            placeholder={isLoading ? "Memuat kota..." : "Cari kota..."}
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setSelected(null);
+              setOpen(true);
+            }}
+            onFocus={() => setOpen(true)}
+            disabled={isLoading}
+          />
+          {query.length > 0 && (
+            <button
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              onClick={handleClear}
+              type="button"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        {open && filtered.length > 0 && (
+          <ul className="absolute z-50 mt-1 max-h-52 w-full overflow-y-auto rounded-xl border border-border bg-white text-foreground shadow-lg">
+            {filtered.map((city) => (
+              <li
+                key={city.id}
+                className="flex cursor-pointer items-center gap-2 px-4 py-2.5 text-sm hover:bg-primary/5"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => handleSelect(city)}
+              >
+                <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />
+                {city.name}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {open && query.trim().length > 0 && filtered.length === 0 && !isLoading && (
+          <div className="absolute z-50 mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm text-muted-foreground shadow-lg">
+            Kota tidak ditemukan
+          </div>
+        )}
+      </div>
+
+      <Button
+        size="lg"
+        className="mt-3 h-11 w-full rounded-xl bg-white font-semibold text-primary shadow-md hover:bg-white/90"
+        onClick={handleBooking}
+      >
+        {selected ? `Booking di ${selected.name}` : "Booking Sekarang"}
+        <ChevronRight className="ml-2 h-5 w-5" />
+      </Button>
+    </div>
+  );
+}
 
 export default function HomePage() {
+  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuthContext();
+  const initials = getInitials(
+    user?.name || user?.fullName || user?.full_name || null
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border bg-card/80 backdrop-blur-lg">
@@ -28,8 +158,21 @@ export default function HomePage() {
                 </p>
               </div>
             </div>
-            <Button size="sm" variant="ghost" className="rounded-full">
-              <div className="h-8 w-8 rounded-full bg-secondary" />
+            <Button
+              size="sm"
+              variant="ghost"
+              className="rounded-full p-0"
+              onClick={() => navigate(isAuthenticated ? "/settings" : "/login")}
+            >
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent">
+                {initials ? (
+                  <span className="text-xs font-bold text-primary-foreground">
+                    {initials}
+                  </span>
+                ) : (
+                  <div className="h-5 w-5 rounded-full bg-primary-foreground/30" />
+                )}
+              </div>
             </Button>
           </div>
         </div>
@@ -43,16 +186,7 @@ export default function HomePage() {
           <p className="mb-6 text-sm leading-relaxed opacity-90">
             Temukan terapis profesional di kota Anda dengan mudah
           </p>
-          <Button
-            size="lg"
-            className="h-12 rounded-full bg-white px-8 font-semibold text-primary shadow-lg hover:bg-white/90"
-            asChild
-          >
-            <Link to="/booking">
-              Booking Sekarang
-              <ChevronRight className="ml-2 h-5 w-5" />
-            </Link>
-          </Button>
+          <CitySearch />
         </div>
 
         <div className="mb-8 grid grid-cols-3 gap-3">
