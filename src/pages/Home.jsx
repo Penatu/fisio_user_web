@@ -1,0 +1,207 @@
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+  Calendar,
+  MapPin,
+  MessageSquare,
+  Clock,
+  ChevronRight,
+} from "lucide-react";
+
+export default function HomePage() {
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-40 border-b border-border bg-card/80 backdrop-blur-lg">
+        <div className="px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent">
+                <span className="text-lg font-bold text-primary-foreground">
+                  P
+                </span>
+              </div>
+              <div>
+                <h1 className="text-lg font-bold">PhysioBook</h1>
+                <p className="text-xs text-muted-foreground">
+                  Booking Fisioterapi
+                </p>
+              </div>
+            </div>
+            <Button size="sm" variant="ghost" className="rounded-full">
+              <div className="h-8 w-8 rounded-full bg-secondary" />
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <section className="px-4 py-6">
+        <div className="mb-6 rounded-3xl bg-gradient-to-br from-primary to-accent p-8 text-primary-foreground">
+          <h2 className="mb-4 text-3xl font-bold leading-tight text-balance">
+            Booking Fisioterapi Professional
+          </h2>
+          <p className="mb-6 text-sm leading-relaxed opacity-90">
+            Temukan terapis profesional di kota Anda dengan mudah
+          </p>
+          <Button
+            size="lg"
+            className="h-12 rounded-full bg-white px-8 font-semibold text-primary shadow-lg hover:bg-white/90"
+            asChild
+          >
+            <Link to="/booking">
+              Booking Sekarang
+              <ChevronRight className="ml-2 h-5 w-5" />
+            </Link>
+          </Button>
+        </div>
+
+        <div className="mb-8 grid grid-cols-3 gap-3">
+          <Card className="rounded-2xl p-4 shadow-sm">
+            <p className="mb-1 text-2xl font-bold">500+</p>
+            <p className="text-xs text-muted-foreground">Terapis</p>
+          </Card>
+          <Card className="rounded-2xl p-4 shadow-sm">
+            <p className="mb-1 text-2xl font-bold">50+</p>
+            <p className="text-xs text-muted-foreground">Kota</p>
+          </Card>
+          <Card className="rounded-2xl p-4 shadow-sm">
+            <p className="mb-1 text-2xl font-bold">4.9</p>
+            <p className="text-xs text-muted-foreground">Rating</p>
+          </Card>
+        </div>
+      </section>
+
+      <section className="px-4 py-6">
+        <div className="mb-6 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent">
+            <span className="text-lg font-bold text-primary-foreground">P</span>
+          </div>
+          <div>
+            <h1 className="text-lg font-bold">PhysioBook</h1>
+            <p className="text-xs text-muted-foreground">Booking Fisioterapi</p>
+          </div>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card className="rounded-2xl p-6 shadow-sm transition-shadow hover:shadow-md">
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+              <MapPin className="h-6 w-6 text-primary" />
+            </div>
+            <h4 className="mb-2 text-lg font-bold">Pilih Lokasi</h4>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Temukan terapis di kota atau kabupaten Anda di seluruh Indonesia
+            </p>
+          </Card>
+          <Card className="rounded-2xl p-6 shadow-sm transition-shadow hover:shadow-md">
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10">
+              <Calendar className="h-6 w-6 text-accent" />
+            </div>
+            <h4 className="mb-2 text-lg font-bold">Atur Jadwal</h4>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Pilih tanggal dan waktu yang sesuai dengan kebutuhan Anda
+            </p>
+          </Card>
+          <Card className="rounded-2xl p-6 shadow-sm transition-shadow hover:shadow-md">
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-chart-2/10">
+              <MessageSquare className="h-6 w-6 text-chart-2" />
+            </div>
+            <h4 className="mb-2 text-lg font-bold">Chat Real-time</h4>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Konsultasi langsung dengan terapis melalui chat
+            </p>
+          </Card>
+          <Card className="rounded-2xl p-6 shadow-sm transition-shadow hover:shadow-md">
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-chart-3/10">
+              <Clock className="h-6 w-6 text-chart-3" />
+            </div>
+            <h4 className="mb-2 text-lg font-bold">History Lengkap</h4>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Lihat riwayat booking dan pembayaran Anda
+            </p>
+          </Card>
+        </div>
+      </section>
+
+      <section className="px-4 py-6">
+        <Card className="rounded-3xl bg-gradient-to-br from-accent to-chart-2 p-8 text-center text-accent-foreground shadow-xl">
+          <h3 className="mb-3 text-2xl font-bold leading-tight text-balance">
+            Mulai Perjalanan Pemulihan Anda
+          </h3>
+          <p className="mb-6 text-sm leading-relaxed opacity-90">
+            Booking fisioterapi profesional dalam 3 langkah mudah
+          </p>
+          <Button
+            size="lg"
+            className="h-12 rounded-full bg-white px-8 font-semibold text-accent shadow-lg hover:bg-white/90"
+            asChild
+          >
+            <Link to="/booking">
+              Mulai Booking
+              <ChevronRight className="ml-2 h-5 w-5" />
+            </Link>
+          </Button>
+        </Card>
+      </section>
+
+      <footer className="mt-8 border-t border-border bg-muted/30 px-4 py-8">
+        <div className="mb-6 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent">
+            <span className="text-lg font-bold text-primary-foreground">P</span>
+          </div>
+          <div>
+            <h5 className="font-bold">PhysioBook</h5>
+            <p className="text-xs text-muted-foreground">
+              Platform Booking Fisioterapi
+            </p>
+          </div>
+        </div>
+        <div className="grid gap-6">
+          <div>
+            <h6 className="mb-3 text-sm font-semibold">Layanan</h6>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link
+                  to="/booking"
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  Booking
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/chat"
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  Chat
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/history"
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  History
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h6 className="mb-3 text-sm font-semibold">Tentang</h6>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>Tentang Kami</li>
+              <li>Syarat & Ketentuan</li>
+              <li>Kebijakan Privasi</li>
+            </ul>
+          </div>
+          <div>
+            <h6 className="mb-3 text-sm font-semibold">Kontak</h6>
+            <p className="text-sm text-muted-foreground">info@physiobook.id</p>
+            <p className="text-sm text-muted-foreground">+62 812-3456-7890</p>
+          </div>
+        </div>
+        <div className="mt-8 border-t border-border pt-6 text-center text-xs text-muted-foreground">
+          © 2025 PhysioBook. All rights reserved.
+        </div>
+      </footer>
+    </div>
+  );
+}
