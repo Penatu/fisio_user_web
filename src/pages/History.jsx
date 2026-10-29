@@ -63,8 +63,8 @@ const bookings = [
 
 function StatusBadge({ status }) {
   const styles = {
-    upcoming: "bg-primary/10 text-primary border-primary/20",
-    completed: "bg-accent/10 text-accent border-accent/20",
+    upcoming: "bg-primary-soft text-foreground border-transparent",
+    completed: "bg-accent/40 text-foreground border-transparent",
     cancelled: "bg-destructive/10 text-destructive border-destructive/20",
   };
 
@@ -83,7 +83,7 @@ function StatusBadge({ status }) {
 
 function PaymentStatusBadge({ status }) {
   const styles = {
-    paid: "bg-accent/10 text-accent border-accent/20",
+    paid: "bg-accent/40 text-foreground border-transparent",
     pending: "bg-chart-3/10 text-chart-3 border-chart-3/20",
     refunded: "bg-muted text-muted-foreground border-border",
   };
@@ -115,7 +115,7 @@ export default function HistoryPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 border-b border-border bg-card/80 backdrop-blur-lg">
+      <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-lg">
         <div className="mx-auto px-4 py-4 md:px-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -228,7 +228,7 @@ export default function HistoryPage() {
                             />
                           </div>
                           <div className="flex items-start gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-foreground">
                               <User className="h-6 w-6 text-primary-foreground" />
                             </div>
                             <div>
@@ -274,7 +274,7 @@ export default function HistoryPage() {
                           <>
                             <Button
                               size="sm"
-                              className="rounded-full bg-gradient-to-r from-primary to-accent font-medium shadow-sm hover:shadow-md"
+                              className="rounded-full bg-primary text-foreground hover:bg-primary/90 font-medium shadow-sm hover:shadow-md"
                               asChild
                             >
                               <Link to="/chat">
@@ -295,7 +295,7 @@ export default function HistoryPage() {
                           <>
                             <Button
                               size="sm"
-                              className="rounded-full bg-gradient-to-r from-primary to-accent font-medium"
+                              className="rounded-full bg-primary text-foreground hover:bg-primary/90 font-medium"
                               asChild
                             >
                               <Link to="/booking">

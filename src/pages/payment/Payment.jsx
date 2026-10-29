@@ -39,7 +39,7 @@ export default function PaymentPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 pb-32">
+    <div className="min-h-screen bg-background pb-32">
       {/* Mobile Header */}
       <header className="sticky top-0 z-50 border-b border-border/40 bg-card/80 backdrop-blur-lg">
         <div className="flex items-center gap-4 px-4 py-4">
@@ -54,7 +54,7 @@ export default function PaymentPage() {
 
       <main className="px-4 py-6 pb-24">
         {/* Order Summary Card */}
-        <Card className="mb-4 overflow-hidden rounded-2xl border-0 bg-gradient-to-br from-primary/10 to-accent/10 shadow-lg">
+        <Card className="mb-4 overflow-hidden rounded-2xl border-0 bg-primary-soft shadow-lg">
           <div className="p-6">
             <p className="mb-4 text-sm text-muted-foreground">
               Total Pembayaran
@@ -82,7 +82,7 @@ export default function PaymentPage() {
                 {bookingData.city && (
                   <div className="flex items-center gap-3">
                     <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
-                      <MapPin className="h-4 w-4 text-primary" />
+                      <MapPin className="h-4 w-4 text-foreground" />
                     </div>
                     <div className="flex flex-1 items-center justify-between text-sm">
                       <span className="text-muted-foreground">Lokasi</span>
@@ -93,7 +93,7 @@ export default function PaymentPage() {
                 {bookingDate && (
                   <div className="flex items-center gap-3">
                     <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
-                      <CalendarIcon className="h-4 w-4 text-primary" />
+                      <CalendarIcon className="h-4 w-4 text-foreground" />
                     </div>
                     <div className="flex flex-1 items-center justify-between text-sm">
                       <span className="text-muted-foreground">Tanggal</span>
@@ -111,7 +111,7 @@ export default function PaymentPage() {
                 {bookingData.time && (
                   <div className="flex items-center gap-3">
                     <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
-                      <Clock className="h-4 w-4 text-primary" />
+                      <Clock className="h-4 w-4 text-foreground" />
                     </div>
                     <div className="flex flex-1 items-center justify-between text-sm">
                       <span className="text-muted-foreground">Waktu</span>
@@ -122,7 +122,7 @@ export default function PaymentPage() {
                 {bookingData.therapist && (
                   <div className="flex items-center gap-3">
                     <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
-                      <User className="h-4 w-4 text-primary" />
+                      <User className="h-4 w-4 text-foreground" />
                     </div>
                     <div className="flex flex-1 items-center justify-between text-sm">
                       <span className="text-muted-foreground">Terapis</span>
@@ -153,7 +153,7 @@ export default function PaymentPage() {
             <Building2
               className={`h-6 w-6 ${
                 paymentMethod === "bank"
-                  ? "text-primary"
+                  ? "text-foreground"
                   : "text-muted-foreground"
               }`}
             />
@@ -170,7 +170,7 @@ export default function PaymentPage() {
             <Wallet
               className={`h-6 w-6 ${
                 paymentMethod === "ewallet"
-                  ? "text-primary"
+                  ? "text-foreground"
                   : "text-muted-foreground"
               }`}
             />
@@ -187,7 +187,7 @@ export default function PaymentPage() {
             <CreditCard
               className={`h-6 w-6 ${
                 paymentMethod === "card"
-                  ? "text-primary"
+                  ? "text-foreground"
                   : "text-muted-foreground"
               }`}
             />
@@ -300,7 +300,7 @@ export default function PaymentPage() {
         <div className="fixed bottom-20 left-1/2 w-full max-w-[450px] -translate-x-1/2 bg-gradient-to-t from-background via-background to-transparent p-4">
           <Button
             size="lg"
-            className="h-14 w-full rounded-full bg-gradient-to-r from-primary to-accent text-base font-semibold shadow-2xl hover:shadow-3xl disabled:opacity-50"
+            className="h-14 w-full rounded-full bg-primary text-foreground hover:bg-primary/90 text-base font-semibold shadow-2xl hover:shadow-3xl disabled:opacity-50"
             disabled={
               isProcessing || (paymentMethod !== "card" && !selectedOption)
             }

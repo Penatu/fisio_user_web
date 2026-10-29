@@ -12,12 +12,12 @@ import {
 
 export default function PaymentSuccessPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+    <div className="min-h-screen bg-background">
       <main className="px-4 py-12 pb-24">
         {/* Success Icon */}
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-600 shadow-2xl">
-            <CheckCircle2 className="h-14 w-14 text-white" />
+          <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-accent shadow-2xl">
+            <CheckCircle2 className="h-14 w-14 text-foreground" />
           </div>
           <h2 className="mb-2 text-2xl font-bold">Pembayaran Berhasil!</h2>
           <p className="text-sm text-muted-foreground">
@@ -26,7 +26,7 @@ export default function PaymentSuccessPage() {
         </div>
 
         {/* Booking ID Card */}
-        <Card className="mb-4 overflow-hidden rounded-2xl border-0 bg-gradient-to-br from-primary/10 to-accent/10 shadow-lg">
+        <Card className="mb-4 overflow-hidden rounded-2xl border-0 bg-primary-soft shadow-lg">
           <div className="p-6 text-center">
             <p className="mb-2 text-xs text-muted-foreground">ID Booking</p>
             <p className="text-2xl font-bold tracking-wide">PHYS-2025-001</p>
@@ -40,7 +40,7 @@ export default function PaymentSuccessPage() {
             <div className="space-y-4">
               <div className="flex items-start gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                  <User className="h-5 w-5 text-primary" />
+                  <User className="h-5 w-5 text-foreground" />
                 </div>
                 <div className="flex-1">
                   <p className="text-xs text-muted-foreground">Terapis</p>
@@ -53,7 +53,7 @@ export default function PaymentSuccessPage() {
 
               <div className="flex items-start gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                  <MapPin className="h-5 w-5 text-primary" />
+                  <MapPin className="h-5 w-5 text-foreground" />
                 </div>
                 <div className="flex-1">
                   <p className="text-xs text-muted-foreground">Lokasi</p>
@@ -63,7 +63,7 @@ export default function PaymentSuccessPage() {
 
               <div className="flex items-start gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                  <Calendar className="h-5 w-5 text-primary" />
+                  <Calendar className="h-5 w-5 text-foreground" />
                 </div>
                 <div className="flex-1">
                   <p className="text-xs text-muted-foreground">Tanggal</p>
@@ -73,7 +73,7 @@ export default function PaymentSuccessPage() {
 
               <div className="flex items-start gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                  <Clock className="h-5 w-5 text-primary" />
+                  <Clock className="h-5 w-5 text-foreground" />
                 </div>
                 <div className="flex-1">
                   <p className="text-xs text-muted-foreground">Waktu</p>
@@ -109,7 +109,7 @@ export default function PaymentSuccessPage() {
         <div className="space-y-3">
           <Button
             size="lg"
-            className="h-14 w-full rounded-full bg-gradient-to-r from-primary to-accent text-base font-semibold shadow-lg"
+            className="h-14 w-full rounded-full bg-primary text-foreground hover:bg-primary/90 text-base font-semibold shadow-lg"
             asChild
           >
             <Link to="/chat">Chat dengan Terapis</Link>

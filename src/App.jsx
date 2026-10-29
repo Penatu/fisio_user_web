@@ -21,8 +21,8 @@ function AppContent() {
     location.pathname.startsWith("/history/");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
-      <div className="mx-auto max-w-[450px] bg-white shadow-2xl min-h-screen">
+    <div className="min-h-screen bg-muted">
+      <div className="mx-auto min-h-screen max-w-[450px] bg-background shadow-[0_12px_50px_-24px_rgba(0,0,0,0.25)]">
         <div className={hideBottomNav ? "" : "pb-20"}>
           <Routes>
             <Route path="/" element={<HomePage />} />

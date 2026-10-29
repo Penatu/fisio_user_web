@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Calendar,
@@ -34,7 +33,7 @@ function CitySearch() {
     query.trim().length === 0
       ? cities
       : cities.filter((c) =>
-          c.name.toLowerCase().includes(query.toLowerCase())
+          c.name.toLowerCase().includes(query.toLowerCase()),
         );
 
   useEffect(() => {
@@ -61,22 +60,21 @@ function CitySearch() {
 
   const handleBooking = () => {
     if (selected) {
-      navigate(`/booking?cityId=${selected.id}&cityName=${encodeURIComponent(selected.name)}`);
+      navigate(
+        `/booking?cityId=${selected.id}&cityName=${encodeURIComponent(selected.name)}`,
+      );
     } else {
       navigate("/booking");
     }
   };
 
   return (
-    <div className="mb-4" ref={containerRef}>
-      <p className="mb-2 text-sm font-medium text-primary-foreground/80">
-        Cari kota Anda
-      </p>
+    <div ref={containerRef}>
       <div className="relative">
         <div className="relative flex items-center">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            className="h-11 rounded-xl border-0 bg-white pl-9 pr-9 text-foreground shadow-md placeholder:text-muted-foreground focus-visible:ring-primary"
+            className="h-12 rounded-full border-0 bg-muted pl-11 pr-11 text-foreground shadow-none placeholder:text-muted-foreground focus-visible:ring-primary"
             placeholder={isLoading ? "Memuat kota..." : "Cari kota..."}
             value={query}
             onChange={(e) => {
@@ -89,7 +87,7 @@ function CitySearch() {
           />
           {query.length > 0 && (
             <button
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               onClick={handleClear}
               type="button"
             >
@@ -99,31 +97,34 @@ function CitySearch() {
         </div>
 
         {open && filtered.length > 0 && (
-          <ul className="absolute z-50 mt-1 max-h-52 w-full overflow-y-auto rounded-xl border border-border bg-white text-foreground shadow-lg">
+          <ul className="absolute z-50 mt-2 max-h-72 w-full overflow-y-auto rounded-[22px] border border-border bg-background py-1 text-foreground shadow-[0_16px_40px_-20px_rgba(0,0,0,0.35)]">
             {filtered.map((city) => (
               <li
                 key={city.id}
-                className="flex cursor-pointer items-center gap-2 px-4 py-2.5 text-sm hover:bg-primary/5"
+                className="flex cursor-pointer items-center gap-2 px-4 py-2.5 text-sm hover:bg-muted"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => handleSelect(city)}
               >
-                <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />
+                <MapPin className="h-3.5 w-3.5 shrink-0 text-foreground" />
                 {city.name}
               </li>
             ))}
           </ul>
         )}
 
-        {open && query.trim().length > 0 && filtered.length === 0 && !isLoading && (
-          <div className="absolute z-50 mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm text-muted-foreground shadow-lg">
-            Kota tidak ditemukan
-          </div>
-        )}
+        {open &&
+          query.trim().length > 0 &&
+          filtered.length === 0 &&
+          !isLoading && (
+            <div className="absolute z-50 mt-1 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-muted-foreground shadow-lg">
+              Kota tidak ditemukan
+            </div>
+          )}
       </div>
 
       <Button
         size="lg"
-        className="mt-3 h-11 w-full rounded-xl bg-white font-semibold text-primary shadow-md hover:bg-white/90"
+        className="mt-2.5 h-12 w-full rounded-full bg-foreground font-semibold text-background shadow-none hover:bg-foreground/90"
         onClick={handleBooking}
       >
         {selected ? `Booking di ${selected.name}` : "Booking Sekarang"}
@@ -133,23 +134,130 @@ function CitySearch() {
   );
 }
 
+const features = [
+  {
+    icon: MapPin,
+    title: "Pilih Lokasi",
+    copy: "Temukan terapis di kota atau kabupaten Anda di seluruh Indonesia",
+    card: "bg-primary text-foreground",
+  },
+  {
+    icon: Calendar,
+    title: "Atur Jadwal",
+    copy: "Pilih tanggal dan waktu yang sesuai dengan kebutuhan Anda",
+    card: "bg-accent text-foreground",
+  },
+  {
+    icon: MessageSquare,
+    title: "Chat Real-time",
+    copy: "Konsultasi langsung dengan terapis melalui chat",
+    card: "bg-primary-soft text-foreground",
+  },
+  {
+    icon: Clock,
+    title: "History Lengkap",
+    copy: "Lihat riwayat booking dan pembayaran Anda",
+    card: "bg-foreground text-background",
+  },
+];
+
+function FeatureCarousel() {
+  const scrollerRef = useRef(null);
+  const [active, setActive] = useState(0);
+
+  const updateActive = () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const left = el.scrollLeft;
+    let closest = 0;
+    let min = Infinity;
+    Array.from(el.children).forEach((child, index) => {
+      const distance = Math.abs(child.offsetLeft - el.offsetLeft - left);
+      if (distance < min) {
+        min = distance;
+        closest = index;
+      }
+    });
+    setActive(closest);
+  };
+
+  const scrollTo = (index) => {
+    const el = scrollerRef.current;
+    const child = el?.children[index];
+    if (!el || !child) return;
+    const origin = el.children[0]?.offsetLeft ?? 0;
+    el.scrollTo({
+      left: child.offsetLeft - origin,
+      behavior: "smooth",
+    });
+  };
+
+  return (
+    <section className="py-6" aria-roledescription="carousel">
+      <div className="mb-4 flex items-end justify-between gap-4 px-4">
+        <div>
+          <h2 className="text-xl font-bold tracking-tight">
+            Booking Fisioterapi
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Geser untuk lihat layanannya
+          </p>
+        </div>
+      </div>
+      <div
+        ref={scrollerRef}
+        onScroll={updateActive}
+        className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-pl-4 px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {features.map(({ icon: Icon, title, copy, card }) => (
+          <article
+            key={title}
+            className={`flex min-h-[196px] w-[78%] shrink-0 snap-start flex-col justify-between rounded-[28px] p-5 ${card}`}
+          >
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-background text-foreground">
+              <Icon className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold leading-tight">{title}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed opacity-75">
+                {copy}
+              </p>
+            </div>
+          </article>
+        ))}
+      </div>
+      <div className="mt-4 flex items-center justify-center gap-1.5">
+        {features.map((feature, index) => (
+          <button
+            key={feature.title}
+            type="button"
+            aria-label={`Tampilkan ${feature.title}`}
+            onClick={() => scrollTo(index)}
+            className={`h-1.5 rounded-full transition-all ${
+              index === active ? "w-6 bg-foreground" : "w-1.5 bg-foreground/20"
+            }`}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function HomePage() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthContext();
   const initials = getInitials(
-    user?.name || user?.fullName || user?.full_name || null
+    user?.name || user?.fullName || user?.full_name || null,
   );
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 border-b border-border bg-card/80 backdrop-blur-lg">
+      <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-lg">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent">
-                <span className="text-lg font-bold text-primary-foreground">
-                  P
-                </span>
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
+                <span className="text-lg font-bold text-foreground">P</span>
               </div>
               <div>
                 <h1 className="text-lg font-bold">PhysioBook</h1>
@@ -164,13 +272,13 @@ export default function HomePage() {
               className="rounded-full p-0"
               onClick={() => navigate(isAuthenticated ? "/settings" : "/login")}
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground">
                 {initials ? (
-                  <span className="text-xs font-bold text-primary-foreground">
+                  <span className="text-xs font-bold text-background">
                     {initials}
                   </span>
                 ) : (
-                  <div className="h-5 w-5 rounded-full bg-primary-foreground/30" />
+                  <div className="h-5 w-5 rounded-full bg-background/30" />
                 )}
               </div>
             </Button>
@@ -178,108 +286,41 @@ export default function HomePage() {
         </div>
       </header>
 
-      <section className="px-4 py-6">
-        <div className="mb-6 rounded-3xl bg-gradient-to-br from-primary to-accent p-8 text-primary-foreground">
-          <h2 className="mb-4 text-3xl font-bold leading-tight text-balance">
-            Booking Fisioterapi Professional
-          </h2>
-          <p className="mb-6 text-sm leading-relaxed opacity-90">
-            Temukan terapis profesional di kota Anda dengan mudah
-          </p>
-          <CitySearch />
-        </div>
-
-        <div className="mb-8 grid grid-cols-3 gap-3">
-          <Card className="rounded-2xl p-4 shadow-sm">
-            <p className="mb-1 text-2xl font-bold">500+</p>
-            <p className="text-xs text-muted-foreground">Terapis</p>
-          </Card>
-          <Card className="rounded-2xl p-4 shadow-sm">
-            <p className="mb-1 text-2xl font-bold">50+</p>
-            <p className="text-xs text-muted-foreground">Kota</p>
-          </Card>
-          <Card className="rounded-2xl p-4 shadow-sm">
-            <p className="mb-1 text-2xl font-bold">4.9</p>
-            <p className="text-xs text-muted-foreground">Rating</p>
-          </Card>
-        </div>
-      </section>
-
-      <section className="px-4 py-6">
-        <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent">
-            <span className="text-lg font-bold text-primary-foreground">P</span>
+      <section className="px-4 pt-6">
+        <div className="relative z-20 mb-6 rounded-[28px] bg-primary p-3 text-foreground">
+          <div className="px-3 pb-4 pt-3">
+            <h2 className="text-[1.7rem] font-bold leading-[1.15] tracking-tight text-balance">
+              Booking Fisioterapi Professional
+            </h2>
+            <p className="mt-2 max-w-[34ch] text-sm leading-relaxed text-foreground/70">
+              Temukan terapis profesional di kota Anda dengan mudah
+            </p>
           </div>
-          <div>
-            <h1 className="text-lg font-bold">PhysioBook</h1>
-            <p className="text-xs text-muted-foreground">Booking Fisioterapi</p>
+          <div className="rounded-[22px] bg-background p-3.5">
+            <CitySearch />
           </div>
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          <Card className="rounded-2xl p-6 shadow-sm transition-shadow hover:shadow-md">
-            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-              <MapPin className="h-6 w-6 text-primary" />
+
+        <div className="mb-8 grid grid-cols-3 divide-x divide-border overflow-hidden rounded-[24px] bg-muted">
+          {[
+            ["500+", "Terapis"],
+            ["50+", "Kota"],
+            ["4.9", "Rating"],
+          ].map(([value, label]) => (
+            <div key={label} className="px-3 py-4 text-center">
+              <p className="text-2xl font-bold tracking-tight">{value}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{label}</p>
             </div>
-            <h4 className="mb-2 text-lg font-bold">Pilih Lokasi</h4>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              Temukan terapis di kota atau kabupaten Anda di seluruh Indonesia
-            </p>
-          </Card>
-          <Card className="rounded-2xl p-6 shadow-sm transition-shadow hover:shadow-md">
-            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10">
-              <Calendar className="h-6 w-6 text-accent" />
-            </div>
-            <h4 className="mb-2 text-lg font-bold">Atur Jadwal</h4>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              Pilih tanggal dan waktu yang sesuai dengan kebutuhan Anda
-            </p>
-          </Card>
-          <Card className="rounded-2xl p-6 shadow-sm transition-shadow hover:shadow-md">
-            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-chart-2/10">
-              <MessageSquare className="h-6 w-6 text-chart-2" />
-            </div>
-            <h4 className="mb-2 text-lg font-bold">Chat Real-time</h4>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              Konsultasi langsung dengan terapis melalui chat
-            </p>
-          </Card>
-          <Card className="rounded-2xl p-6 shadow-sm transition-shadow hover:shadow-md">
-            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-chart-3/10">
-              <Clock className="h-6 w-6 text-chart-3" />
-            </div>
-            <h4 className="mb-2 text-lg font-bold">History Lengkap</h4>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              Lihat riwayat booking dan pembayaran Anda
-            </p>
-          </Card>
+          ))}
         </div>
       </section>
 
-      <section className="px-4 py-6">
-        <Card className="rounded-3xl bg-gradient-to-br from-accent to-chart-2 p-8 text-center text-accent-foreground shadow-xl">
-          <h3 className="mb-3 text-2xl font-bold leading-tight text-balance">
-            Mulai Perjalanan Pemulihan Anda
-          </h3>
-          <p className="mb-6 text-sm leading-relaxed opacity-90">
-            Booking fisioterapi profesional dalam 3 langkah mudah
-          </p>
-          <Button
-            size="lg"
-            className="h-12 rounded-full bg-white px-8 font-semibold text-accent shadow-lg hover:bg-white/90"
-            asChild
-          >
-            <Link to="/booking">
-              Mulai Booking
-              <ChevronRight className="ml-2 h-5 w-5" />
-            </Link>
-          </Button>
-        </Card>
-      </section>
+      <FeatureCarousel />
 
-      <footer className="mt-8 border-t border-border bg-muted/30 px-4 py-8">
+      <footer className="mt-4 border-t border-border bg-muted px-4 py-8">
         <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-accent">
-            <span className="text-lg font-bold text-primary-foreground">P</span>
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-foreground">
+            <span className="text-lg font-bold text-background">P</span>
           </div>
           <div>
             <h5 className="font-bold">PhysioBook</h5>

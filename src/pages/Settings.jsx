@@ -58,7 +58,7 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 border-b border-border bg-card/80 backdrop-blur-lg">
+      <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-lg">
         <div className="px-4 py-4">
           <div className="flex items-center gap-3">
             <Button
@@ -83,7 +83,7 @@ export default function SettingsPage() {
         {/* Profile Card */}
         <Card className="rounded-2xl p-5 shadow-sm">
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-md">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary text-foreground shadow-md">
               <span className="text-xl font-bold text-primary-foreground">
                 {initials}
               </span>
@@ -110,7 +110,7 @@ export default function SettingsPage() {
           <Card className="divide-y divide-border rounded-2xl shadow-sm overflow-hidden">
             <div className="flex items-center gap-3 px-4 py-3.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                <User className="h-4 w-4 text-primary" />
+                <User className="h-4 w-4 text-foreground" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs text-muted-foreground">Nama</p>
@@ -119,7 +119,7 @@ export default function SettingsPage() {
             </div>
             <div className="flex items-center gap-3 px-4 py-3.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                <Mail className="h-4 w-4 text-primary" />
+                <Mail className="h-4 w-4 text-foreground" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs text-muted-foreground">Email</p>
@@ -129,7 +129,7 @@ export default function SettingsPage() {
             {userPhone && (
               <div className="flex items-center gap-3 px-4 py-3.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                  <Phone className="h-4 w-4 text-primary" />
+                  <Phone className="h-4 w-4 text-foreground" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs text-muted-foreground">Telepon</p>

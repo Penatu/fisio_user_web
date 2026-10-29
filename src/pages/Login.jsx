@@ -35,8 +35,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
-      <header className="sticky top-0 z-40 border-b border-border bg-card/80 backdrop-blur-lg">
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-lg">
         <div className="px-4 py-4">
           <div className="flex items-center gap-3">
             <Button
@@ -63,7 +63,7 @@ export default function LoginPage() {
         <div className="mx-auto max-w-md">
           {/* Logo/Header */}
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-foreground shadow-lg">
               <span className="text-2xl font-bold text-primary-foreground">
                 P
               </span>
@@ -133,7 +133,7 @@ export default function LoginPage() {
               <div className="flex items-center justify-between text-sm">
                 <Link
                   to="/forgot-password"
-                  className="font-medium text-primary hover:underline"
+                  className="font-medium text-foreground hover:underline"
                 >
                   Lupa password?
                 </Link>
@@ -149,7 +149,7 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 size="lg"
-                className="h-12 w-full rounded-full bg-gradient-to-r from-primary to-accent font-semibold shadow-lg hover:shadow-xl"
+                className="h-12 w-full rounded-full bg-primary text-foreground hover:bg-primary/90 font-semibold shadow-lg hover:shadow-xl"
                 disabled={isLoading}
               >
                 {isLoading ? "Masuk..." : "Masuk"}
@@ -163,7 +163,7 @@ export default function LoginPage() {
               Belum punya akun?{" "}
               <Link
                 to="/register"
-                className="font-semibold text-primary hover:underline"
+                className="font-semibold text-foreground hover:underline"
               >
                 Daftar sekarang
               </Link>

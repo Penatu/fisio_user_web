@@ -86,10 +86,10 @@ export default function VerifyEmailPage() {
 
   if (isVerified) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <div className="mx-auto max-w-md w-full text-center">
-          <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-600 shadow-2xl">
-            <CheckCircle2 className="h-14 w-14 text-white" />
+          <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-accent shadow-2xl">
+            <CheckCircle2 className="h-14 w-14 text-foreground" />
           </div>
           <h2 className="mb-2 text-2xl font-bold">Email Terverifikasi!</h2>
           <p className="text-sm text-muted-foreground mb-6">
@@ -97,7 +97,7 @@ export default function VerifyEmailPage() {
           </p>
           <Button
             size="lg"
-            className="h-12 rounded-full bg-gradient-to-r from-primary to-accent font-semibold shadow-lg"
+            className="h-12 rounded-full bg-primary text-foreground hover:bg-primary/90 font-semibold shadow-lg"
             asChild
           >
             <Link to="/">Lanjutkan</Link>
@@ -108,8 +108,8 @@ export default function VerifyEmailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
-      <header className="sticky top-0 z-40 border-b border-border bg-card/80 backdrop-blur-lg">
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-lg">
         <div className="px-4 py-4">
           <div className="flex items-center gap-3">
             <Button
@@ -134,14 +134,14 @@ export default function VerifyEmailPage() {
         <div className="mx-auto max-w-md">
           {/* Header */}
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-foreground shadow-lg">
               <Mail className="h-8 w-8 text-primary-foreground" />
             </div>
             <h2 className="text-2xl font-bold">Verifikasi Email Anda</h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Kami telah mengirimkan kode OTP ke
             </p>
-            <p className="mt-1 font-semibold text-primary">{email}</p>
+            <p className="mt-1 font-semibold text-foreground">{email}</p>
           </div>
 
           {/* OTP Input Card */}
@@ -174,7 +174,7 @@ export default function VerifyEmailPage() {
               <Button
                 onClick={handleVerify}
                 size="lg"
-                className="h-12 w-full rounded-full bg-gradient-to-r from-primary to-accent font-semibold shadow-lg hover:shadow-xl disabled:opacity-50"
+                className="h-12 w-full rounded-full bg-primary text-foreground hover:bg-primary/90 font-semibold shadow-lg hover:shadow-xl disabled:opacity-50"
                 disabled={!isOtpComplete || isLoading}
               >
                 {isLoading ? "Memverifikasi..." : "Verifikasi"}
@@ -190,7 +190,7 @@ export default function VerifyEmailPage() {
                   ) : (
                     <button
                       onClick={handleResend}
-                      className="font-semibold text-primary hover:underline"
+                      className="font-semibold text-foreground hover:underline"
                     >
                       Kirim ulang
                     </button>
@@ -207,7 +207,7 @@ export default function VerifyEmailPage() {
             </p>
             <Link
               to="/register"
-              className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
+              className="mt-2 inline-block text-sm font-medium text-foreground hover:underline"
             >
               Ubah email
             </Link>

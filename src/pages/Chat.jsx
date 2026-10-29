@@ -204,7 +204,7 @@ export default function ChatPage() {
                 className="flex w-full items-center gap-3 px-4 py-4 transition-colors hover:bg-secondary/50 active:bg-secondary"
               >
                 <Avatar className="h-12 w-12 border-2 border-primary/20">
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-sm font-bold text-primary-foreground">
+                  <AvatarFallback className="bg-primary text-sm font-bold text-foreground">
                     {conversation.therapistInitial}
                   </AvatarFallback>
                 </Avatar>
@@ -222,7 +222,7 @@ export default function ChatPage() {
                       {conversation.lastMessage}
                     </p>
                     {conversation.unread > 0 && (
-                      <span className="ml-2 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent px-1.5 text-xs font-bold text-primary-foreground">
+                      <span className="ml-2 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold text-foreground">
                         {conversation.unread}
                       </span>
                     )}
@@ -250,7 +250,7 @@ export default function ChatPage() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <Avatar className="h-10 w-10 border-2 border-primary/20">
-              <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-sm font-bold text-primary-foreground">
+              <AvatarFallback className="bg-primary text-sm font-bold text-foreground">
                 {currentConversation?.therapistInitial}
               </AvatarFallback>
             </Avatar>
@@ -278,7 +278,7 @@ export default function ChatPage() {
         </div>
       </header>
 
-      <ScrollArea className="flex-1 bg-gradient-to-b from-secondary/20 to-background">
+      <ScrollArea className="flex-1 bg-muted/40">
         <div className="space-y-4 px-4 py-6 pb-24">
           {messages.map((message) => (
             <div
@@ -290,7 +290,7 @@ export default function ChatPage() {
               <div
                 className={`max-w-[85%] rounded-2xl px-4 py-3 shadow-md ${
                   message.sender === "user"
-                    ? "rounded-br-md bg-gradient-to-br from-primary to-accent text-primary-foreground"
+                    ? "rounded-br-md bg-primary text-foreground"
                     : "rounded-bl-md bg-card"
                 }`}
               >
@@ -321,7 +321,7 @@ export default function ChatPage() {
           />
           <Button
             size="icon"
-            className="h-12 w-12 flex-shrink-0 rounded-full bg-gradient-to-br from-primary to-accent shadow-lg hover:shadow-xl"
+            className="h-12 w-12 flex-shrink-0 rounded-full bg-primary text-foreground shadow-lg hover:shadow-xl"
             onClick={handleSendMessage}
           >
             <Send className="h-5 w-5" />

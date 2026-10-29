@@ -45,8 +45,8 @@ export default function RegisterPage() {
     formData.password === formData.confirmPassword;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 pb-8">
-      <header className="sticky top-0 z-40 border-b border-border bg-card/80 backdrop-blur-lg">
+    <div className="min-h-screen bg-background pb-8">
+      <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-lg">
         <div className="px-4 py-4">
           <div className="flex items-center gap-3">
             <Button
@@ -71,7 +71,7 @@ export default function RegisterPage() {
         <div className="mx-auto max-w-md">
           {/* Logo/Header */}
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-foreground shadow-lg">
               <span className="text-2xl font-bold text-primary-foreground">
                 P
               </span>
@@ -216,21 +216,21 @@ export default function RegisterPage() {
                 <label className="flex items-start gap-2 text-sm">
                   <input
                     type="checkbox"
-                    className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                    className="mt-0.5 h-4 w-4 rounded border-border text-foreground focus:ring-primary"
                     required
                   />
                   <span className="text-muted-foreground">
                     Saya setuju dengan{" "}
                     <Link
                       to="/terms"
-                      className="font-medium text-primary hover:underline"
+                      className="font-medium text-foreground hover:underline"
                     >
                       Syarat & Ketentuan
                     </Link>{" "}
                     dan{" "}
                     <Link
                       to="/privacy"
-                      className="font-medium text-primary hover:underline"
+                      className="font-medium text-foreground hover:underline"
                     >
                       Kebijakan Privasi
                     </Link>
@@ -241,7 +241,7 @@ export default function RegisterPage() {
               <Button
                 type="submit"
                 size="lg"
-                className="h-12 w-full rounded-full bg-gradient-to-r from-primary to-accent font-semibold shadow-lg hover:shadow-xl disabled:opacity-50"
+                className="h-12 w-full rounded-full bg-primary text-foreground hover:bg-primary/90 font-semibold shadow-lg hover:shadow-xl disabled:opacity-50"
                 disabled={isLoading || !isFormValid}
               >
                 {isLoading ? "Mendaftar..." : "Daftar"}
@@ -255,7 +255,7 @@ export default function RegisterPage() {
               Sudah punya akun?{" "}
               <Link
                 to="/login"
-                className="font-semibold text-primary hover:underline"
+                className="font-semibold text-foreground hover:underline"
               >
                 Masuk di sini
               </Link>

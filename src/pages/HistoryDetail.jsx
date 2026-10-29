@@ -19,8 +19,8 @@ import {
 
 function StatusBadge({ status }) {
   const styles = {
-    upcoming: "bg-primary/10 text-primary border-primary/20",
-    completed: "bg-accent/10 text-accent border-accent/20",
+    upcoming: "bg-primary-soft text-foreground border-transparent",
+    completed: "bg-accent/40 text-foreground border-transparent",
     cancelled: "bg-destructive/10 text-destructive border-destructive/20",
   };
 
@@ -39,7 +39,7 @@ function StatusBadge({ status }) {
 
 function PaymentStatusBadge({ status }) {
   const styles = {
-    paid: "bg-accent/10 text-accent border-accent/20",
+    paid: "bg-accent/40 text-foreground border-transparent",
     pending: "bg-chart-3/10 text-chart-3 border-chart-3/20",
     refunded: "bg-muted text-muted-foreground border-border",
   };
@@ -93,7 +93,7 @@ export default function HistoryDetailPage() {
 
   return (
     <div className="min-h-screen bg-background pb-8">
-      <header className="sticky top-0 z-40 border-b border-border bg-card/80 backdrop-blur-lg">
+      <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-lg">
         <div className="px-4 py-4">
           <div className="flex items-center gap-3">
             <Button
@@ -115,7 +115,7 @@ export default function HistoryDetailPage() {
       <main className="px-4 py-6">
         <div className="mx-auto max-w-2xl space-y-4">
           {/* Booking ID & Status */}
-          <Card className="rounded-2xl border-0 bg-gradient-to-br from-primary/10 to-accent/10 p-6 shadow-lg">
+          <Card className="rounded-2xl border-0 bg-primary-soft p-6 shadow-lg">
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <p className="text-xs text-muted-foreground mb-1">ID Booking</p>
@@ -140,7 +140,7 @@ export default function HistoryDetailPage() {
               <h3 className="mb-4 text-lg font-semibold">Informasi Terapis</h3>
               <div className="space-y-4">
                 <div className="flex items-start gap-4">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-foreground">
                     <User className="h-8 w-8 text-primary-foreground" />
                   </div>
                   <div className="flex-1">
@@ -175,7 +175,7 @@ export default function HistoryDetailPage() {
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-                    <Calendar className="h-5 w-5 text-primary" />
+                    <Calendar className="h-5 w-5 text-foreground" />
                   </div>
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground">Tanggal & Waktu</p>
@@ -186,7 +186,7 @@ export default function HistoryDetailPage() {
 
                 <div className="flex items-start gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-                    <MapPin className="h-5 w-5 text-primary" />
+                    <MapPin className="h-5 w-5 text-foreground" />
                   </div>
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground">Lokasi</p>
@@ -199,7 +199,7 @@ export default function HistoryDetailPage() {
 
                 <div className="flex items-start gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-                    <Clock className="h-5 w-5 text-primary" />
+                    <Clock className="h-5 w-5 text-foreground" />
                   </div>
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground">Durasi</p>
@@ -217,7 +217,7 @@ export default function HistoryDetailPage() {
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
-                    <CreditCard className="h-5 w-5 text-primary" />
+                    <CreditCard className="h-5 w-5 text-foreground" />
                   </div>
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground">Metode Pembayaran</p>
@@ -262,7 +262,7 @@ export default function HistoryDetailPage() {
               <>
                 <Button
                   size="lg"
-                  className="h-12 w-full rounded-full bg-gradient-to-r from-primary to-accent font-semibold shadow-lg"
+                  className="h-12 w-full rounded-full bg-primary text-foreground hover:bg-primary/90 font-semibold shadow-lg"
                   asChild
                 >
                   <Link to="/chat">
@@ -284,7 +284,7 @@ export default function HistoryDetailPage() {
               <>
                 <Button
                   size="lg"
-                  className="h-12 w-full rounded-full bg-gradient-to-r from-primary to-accent font-semibold shadow-lg"
+                  className="h-12 w-full rounded-full bg-primary text-foreground hover:bg-primary/90 font-semibold shadow-lg"
                   asChild
                 >
                   <Link to="/booking">
@@ -306,7 +306,7 @@ export default function HistoryDetailPage() {
             {currentBooking.status === "cancelled" && (
               <Button
                 size="lg"
-                className="h-12 w-full rounded-full bg-gradient-to-r from-primary to-accent font-semibold shadow-lg"
+                className="h-12 w-full rounded-full bg-primary text-foreground hover:bg-primary/90 font-semibold shadow-lg"
                 asChild
               >
                 <Link to="/booking">
