@@ -323,7 +323,7 @@ export default function HomePage() {
             <span className="text-lg font-bold text-background">P</span>
           </div>
           <div>
-            <h5 className="font-bold">PhysioBook</h5>
+            <h5 className="font-bold">PhysioBoo k</h5>
             <p className="text-xs text-muted-foreground">
               Platform Booking Fisioterapi
             </p>
