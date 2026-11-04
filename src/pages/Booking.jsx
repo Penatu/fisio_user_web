@@ -1,10 +1,22 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useCities } from "@/hooks/useCities";
 import { useTherapists } from "@/hooks/useTherapists";
+import {
+  PENDING_BOOKING_KEY,
+  buildReservationPayload,
+  useCreateReservation,
+} from "@/hooks/useCreateReservation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   ArrowLeft,
   MapPin,
@@ -15,9 +27,9 @@ import {
   ChevronRight,
   ChevronDown,
   Search,
+  X,
 } from "lucide-react";
 
-const PENDING_BOOKING_KEY = "fisiobook_pending_booking";
 const WEEKDAYS = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
 const MONTHS = [
   "Jan",
@@ -51,6 +63,20 @@ function getTomorrow() {
   return tomorrow;
 }
 
+function formatDateParam(date) {
+  if (!date) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function parseDateParam(value) {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
 function upcomingDays(count = 14) {
   const today = startOfDay(new Date());
   return Array.from({ length: count }, (_, index) => {
@@ -63,7 +89,7 @@ function upcomingDays(count = 14) {
 function CityStrip({ cities, selectedId, onSelect, isLoading, error }) {
   const [query, setQuery] = useState("");
   const filtered = cities.filter((city) =>
-    city.name.toLowerCase().includes(query.trim().toLowerCase())
+    city.name.toLowerCase().includes(query.trim().toLowerCase()),
   );
 
   return (
@@ -87,10 +113,14 @@ function CityStrip({ cities, selectedId, onSelect, isLoading, error }) {
         <p className="px-1 text-sm text-destructive">{error}</p>
       )}
       {!isLoading && !error && cities.length === 0 && (
-        <p className="px-1 text-sm text-muted-foreground">Kota tidak tersedia.</p>
+        <p className="px-1 text-sm text-muted-foreground">
+          Kota tidak tersedia.
+        </p>
       )}
       {!isLoading && !error && cities.length > 0 && filtered.length === 0 && (
-        <p className="px-1 text-sm text-muted-foreground">Kota tidak ditemukan.</p>
+        <p className="px-1 text-sm text-muted-foreground">
+          Kota tidak ditemukan.
+        </p>
       )}
 
       {!isLoading && !error && filtered.length > 0 && (
@@ -231,6 +261,133 @@ function TherapistCard({ therapist, selected, onSelect }) {
   );
 }
 
+function ReservationSheet({
+  open,
+  onClose,
+  complaint,
+  address,
+  addressDetail,
+  onComplaintChange,
+  onAddressChange,
+  onAddressDetailChange,
+  onSubmit,
+  isSubmitting,
+  error,
+}) {
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  const canSubmit = complaint.trim() && address.trim() && addressDetail.trim();
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (!canSubmit || isSubmitting) return;
+    onSubmit();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+      <button
+        type="button"
+        aria-label="Tutup"
+        className="absolute inset-0 bg-foreground/40"
+        onClick={onClose}
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="reservation-title"
+        className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-[28px] bg-background px-5 pt-3 pb-6 shadow-2xl sm:mx-4 sm:rounded-[28px]"
+      >
+        <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-muted sm:hidden" />
+        <div className="mb-5 flex items-start justify-between gap-3">
+          <div>
+            <h2 id="reservation-title" className="text-xl font-bold">
+              Detail Reservasi
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Isi keluhan dan alamat sebelum membuat reservasi.
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="shrink-0 rounded-full"
+            onClick={onClose}
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="complaint">Keluhan</Label>
+            <textarea
+              id="complaint"
+              value={complaint}
+              onChange={(event) => onComplaintChange(event.target.value)}
+              placeholder="Ceritakan keluhan yang ingin ditangani"
+              rows={3}
+              className="w-full resize-none rounded-2xl border-0 bg-muted px-4 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="address">Alamat</Label>
+            <Input
+              id="address"
+              value={address}
+              onChange={(event) => onAddressChange(event.target.value)}
+              placeholder="Nama jalan, nomor, kelurahan"
+              className="h-12 rounded-full border-0 bg-muted px-4"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="address-detail">Detail Alamat</Label>
+            <textarea
+              id="address-detail"
+              value={addressDetail}
+              onChange={(event) => onAddressDetailChange(event.target.value)}
+              placeholder="Patokan, lantai, atau catatan untuk terapis"
+              rows={3}
+              className="w-full resize-none rounded-2xl border-0 bg-muted px-4 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary"
+            />
+          </div>
+
+          {error && <p className="text-sm text-destructive">{error}</p>}
+
+          <Button
+            type="submit"
+            size="lg"
+            disabled={!canSubmit || isSubmitting}
+            className="h-14 w-full rounded-full bg-primary text-foreground hover:bg-primary/90 font-semibold shadow-lg hover:shadow-xl disabled:opacity-50"
+          >
+            {isSubmitting ? "Membuat reservasi..." : "Buat Reservasi"}
+          </Button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 function DateStrip({ selected, onSelect }) {
   const days = upcomingDays();
   const today = startOfDay(new Date());
@@ -289,12 +446,15 @@ function DateStrip({ selected, onSelect }) {
 
 export default function BookingPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated } = useAuthContext();
   const {
-    cities,
-    isLoading: citiesLoading,
-    error: citiesError,
-  } = useCities();
+    mutate: createReservationRequest,
+    isLoading: isCreatingReservation,
+    error: createError,
+    clearError,
+  } = useCreateReservation();
+  const { cities, isLoading: citiesLoading, error: citiesError } = useCities();
   const [searchParams] = useSearchParams();
 
   const cityIdFromHome = searchParams.get("cityId") || "";
@@ -306,6 +466,36 @@ export default function BookingPage() {
   const [selectedCity, setSelectedCity] = useState(cityNameFromHome);
   const [selectedDate, setSelectedDate] = useState(getTomorrow);
   const [selectedTherapist, setSelectedTherapist] = useState(null);
+  const [reservationOpen, setReservationOpen] = useState(false);
+  const [complaint, setComplaint] = useState("");
+  const [address, setAddress] = useState("");
+  const [addressDetail, setAddressDetail] = useState("");
+  const [submitError, setSubmitError] = useState(
+    () => location.state?.reservationError || "",
+  );
+
+  useEffect(() => {
+    const raw = sessionStorage.getItem(PENDING_BOOKING_KEY);
+    if (!raw) return;
+
+    try {
+      const pending = JSON.parse(raw);
+      if (pending.cityId) setSelectedCityId(String(pending.cityId));
+      if (pending.city) setSelectedCity(pending.city);
+      if (pending.therapistCode) {
+        setSelectedTherapist(pending.therapistCode);
+        setCurrentStep(3);
+      }
+      if (pending.complaint) setComplaint(pending.complaint);
+      if (pending.address) setAddress(pending.address);
+      if (pending.addressDetail) setAddressDetail(pending.addressDetail);
+      const pendingDate = parseDateParam(pending.dateTime);
+      if (pendingDate) setSelectedDate(pendingDate);
+      if (location.state?.reservationError) setReservationOpen(true);
+    } catch {
+      sessionStorage.removeItem(PENDING_BOOKING_KEY);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     if (cityIdFromHome || citiesLoading || cities.length === 0) return;
@@ -320,7 +510,7 @@ export default function BookingPage() {
     therapists,
     isLoading: therapistsLoading,
     error: therapistsError,
-  } = useTherapists(selectedCityId);
+  } = useTherapists(selectedCityId, selectedDate);
 
   const canProceedStep1 = selectedCity;
   const canProceedStep3 = selectedTherapist !== null;
@@ -339,20 +529,48 @@ export default function BookingPage() {
     }
   };
 
-  const handleProceedToPayment = () => {
+  const closeReservation = () => {
+    if (isCreatingReservation) return;
+    setReservationOpen(false);
+  };
+
+  const handleCreateReservation = async () => {
+    const therapist =
+      therapists.find((item) => item.code === selectedTherapist) || null;
+    const dateTime = formatDateParam(selectedDate);
+    const payload = buildReservationPayload({
+      cityId: selectedCityId,
+      dateTime,
+      therapistCode: selectedTherapist,
+      address: address.trim(),
+      addressDetail: addressDetail.trim(),
+      serviceId: therapist?.serviceId ?? therapist?.service_id,
+    });
     const bookingData = {
       city: selectedCity,
-      date: selectedDate?.toISOString(),
+      cityId: payload.city_id,
+      date: dateTime,
+      dateTime,
       therapistId: selectedTherapist,
-      therapist: therapists.find((t) => t.code === selectedTherapist) || null,
+      therapistCode: selectedTherapist,
+      therapist,
+      complaint: complaint.trim(),
+      address: payload.address,
+      addressDetail: payload.addressDetail,
+      payload,
     };
 
     if (!isAuthenticated) {
       sessionStorage.setItem(PENDING_BOOKING_KEY, JSON.stringify(bookingData));
-      navigate("/login", { state: { from: { pathname: "/payment" } } });
-    } else {
-      navigate("/payment", { state: { bookingData } });
+      navigate("/login", { state: { from: { pathname: "/booking" } } });
+      return;
     }
+
+    const result = await createReservationRequest(payload);
+    if (!result.success) return;
+
+    sessionStorage.removeItem(PENDING_BOOKING_KEY);
+    navigate("/history", { replace: true });
   };
 
   return (
@@ -456,7 +674,13 @@ export default function BookingPage() {
               </p>
             </div>
 
-            <DateStrip selected={selectedDate} onSelect={setSelectedDate} />
+            <DateStrip
+              selected={selectedDate}
+              onSelect={(date) => {
+                setSelectedDate(date);
+                setSelectedTherapist(null);
+              }}
+            />
 
             <div>
               <Button
@@ -560,7 +784,7 @@ export default function BookingPage() {
                 size="lg"
                 className="h-14 w-full rounded-full bg-primary text-foreground hover:bg-primary/90 font-semibold shadow-lg hover:shadow-xl disabled:opacity-50"
                 disabled={!canProceedStep3}
-                onClick={handleProceedToPayment}
+                onClick={() => setReservationOpen(true)}
               >
                 Lanjut Pembayaran
                 <ChevronRight className="ml-2 h-5 w-5" />
@@ -569,6 +793,32 @@ export default function BookingPage() {
           </div>
         )}
       </main>
+
+      <ReservationSheet
+        open={reservationOpen}
+        onClose={closeReservation}
+        complaint={complaint}
+        address={address}
+        addressDetail={addressDetail}
+        onComplaintChange={(value) => {
+          clearError();
+          setSubmitError("");
+          setComplaint(value);
+        }}
+        onAddressChange={(value) => {
+          clearError();
+          setSubmitError("");
+          setAddress(value);
+        }}
+        onAddressDetailChange={(value) => {
+          clearError();
+          setSubmitError("");
+          setAddressDetail(value);
+        }}
+        onSubmit={handleCreateReservation}
+        isSubmitting={isCreatingReservation}
+        error={createError || submitError || null}
+      />
     </div>
   );
 }

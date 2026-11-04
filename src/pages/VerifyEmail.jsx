@@ -2,17 +2,18 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Mail, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Mail, CheckCircle2, AlertCircle } from "lucide-react";
+import { useVerifyOtp } from "@/hooks/useVerifyOtp";
 
 export default function VerifyEmailPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const email = location.state?.email || "user@email.com";
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [isLoading, setIsLoading] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [timer, setTimer] = useState(60);
   const inputRefs = useRef([]);
+  const { mutate: verifyOtp, isLoading, error, clearError } = useVerifyOtp();
 
   useEffect(() => {
     // Focus first input on mount
@@ -31,6 +32,7 @@ export default function VerifyEmailPage() {
   const handleChange = (index, value) => {
     if (value.length > 1) return; // Only allow single digit
 
+    clearError();
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -64,15 +66,13 @@ export default function VerifyEmailPage() {
     const otpCode = otp.join("");
     if (otpCode.length !== 6) return;
 
-    setIsLoading(true);
-    // Simulate verification
-    setTimeout(() => {
-      setIsLoading(false);
+    const result = await verifyOtp({ email, otp: Number(otpCode) });
+    if (result.success) {
       setIsVerified(true);
       setTimeout(() => {
-        navigate("/");
+        navigate("/login", { replace: true });
       }, 2000);
-    }, 1500);
+    }
   };
 
   const handleResend = () => {
@@ -100,7 +100,7 @@ export default function VerifyEmailPage() {
             className="h-12 rounded-full bg-primary text-foreground hover:bg-primary/90 font-semibold shadow-lg"
             asChild
           >
-            <Link to="/">Lanjutkan</Link>
+            <Link to="/login">Lanjutkan</Link>
           </Button>
         </div>
       </div>
@@ -170,6 +170,13 @@ export default function VerifyEmailPage() {
                   ))}
                 </div>
               </div>
+
+              {error && (
+                <div className="flex items-start gap-2 rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
 
               <Button
                 onClick={handleVerify}

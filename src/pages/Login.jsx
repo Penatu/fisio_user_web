@@ -6,6 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Mail, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useLogin } from "@/hooks/useLogin";
+import {
+  PENDING_BOOKING_KEY,
+  buildReservationPayload,
+  createReservation,
+} from "@/hooks/useCreateReservation";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -13,6 +18,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isCreatingReservation, setIsCreatingReservation] = useState(false);
   const { mutate: loginUser, isLoading, error, clearError } = useLogin();
 
   const from = location.state?.from?.pathname || "/";
@@ -20,18 +26,48 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const result = await loginUser({ email, password });
-    if (result.success) {
-      const pendingBookingRaw = sessionStorage.getItem(
-        "fisiobook_pending_booking",
-      );
-      if (pendingBookingRaw) {
-        sessionStorage.removeItem("fisiobook_pending_booking");
-        const bookingData = JSON.parse(pendingBookingRaw);
-        navigate("/payment", { replace: true, state: { bookingData } });
-      } else {
-        navigate(from, { replace: true });
-      }
+    if (!result.success) return;
+
+    const pendingBookingRaw = sessionStorage.getItem(PENDING_BOOKING_KEY);
+    if (!pendingBookingRaw) {
+      navigate(from, { replace: true });
+      return;
     }
+
+    let pending;
+    try {
+      pending = JSON.parse(pendingBookingRaw);
+    } catch {
+      sessionStorage.removeItem(PENDING_BOOKING_KEY);
+      navigate(from, { replace: true });
+      return;
+    }
+
+    const payload =
+      pending.payload ||
+      buildReservationPayload({
+        cityId: pending.cityId,
+        dateTime: pending.dateTime || String(pending.date || "").slice(0, 10),
+        therapistCode: pending.therapistCode || pending.therapistId,
+        address: pending.address,
+        addressDetail: pending.addressDetail,
+        serviceId: pending.serviceId,
+      });
+
+    setIsCreatingReservation(true);
+    const created = await createReservation(result.data?.token, payload);
+    setIsCreatingReservation(false);
+
+    if (!created.success) {
+      navigate("/booking", {
+        replace: true,
+        state: { reservationError: created.message },
+      });
+      return;
+    }
+
+    sessionStorage.removeItem(PENDING_BOOKING_KEY);
+    navigate("/history", { replace: true });
   };
 
   return (
@@ -150,9 +186,13 @@ export default function LoginPage() {
                 type="submit"
                 size="lg"
                 className="h-12 w-full rounded-full bg-primary text-foreground hover:bg-primary/90 font-semibold shadow-lg hover:shadow-xl"
-                disabled={isLoading}
+                disabled={isLoading || isCreatingReservation}
               >
-                {isLoading ? "Masuk..." : "Masuk"}
+                {isCreatingReservation
+                  ? "Membuat reservasi..."
+                  : isLoading
+                    ? "Masuk..."
+                    : "Masuk"}
               </Button>
             </form>
           </Card>

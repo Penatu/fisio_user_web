@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Mail, Lock, User, Phone, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Mail, Lock, User, Phone, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { useRegister } from "@/hooks/useRegister";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -17,9 +18,10 @@ export default function RegisterPage() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { mutate: registerUser, isLoading, error, clearError } = useRegister();
 
   const handleChange = (e) => {
+    clearError();
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -28,12 +30,15 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    // Simulate registration
-    setTimeout(() => {
-      setIsLoading(false);
+    const result = await registerUser({
+      email: formData.email,
+      fullName: formData.name,
+      phone: formData.phone,
+      password: formData.password,
+    });
+    if (result.success) {
       navigate("/verify-email", { state: { email: formData.email } });
-    }, 1500);
+    }
   };
 
   const isFormValid =
@@ -237,6 +242,13 @@ export default function RegisterPage() {
                   </span>
                 </label>
               </div>
+
+              {error && (
+                <div className="flex items-start gap-2 rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
 
               <Button
                 type="submit"

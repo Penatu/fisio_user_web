@@ -1,7 +1,8 @@
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useTransactionDetail } from "@/hooks/useTransactionDetail";
 import {
   ArrowLeft,
   Calendar,
@@ -17,10 +18,12 @@ import {
   Building2,
 } from "lucide-react";
 
-function StatusBadge({ status }) {
+function StatusBadge({ status, label }) {
   const styles = {
+    new: "bg-primary-soft text-foreground border-transparent",
     upcoming: "bg-primary-soft text-foreground border-transparent",
     completed: "bg-accent/40 text-foreground border-transparent",
+    canceled: "bg-destructive/10 text-destructive border-destructive/20",
     cancelled: "bg-destructive/10 text-destructive border-destructive/20",
   };
 
@@ -28,16 +31,17 @@ function StatusBadge({ status }) {
     upcoming: "Akan Datang",
     completed: "Selesai",
     cancelled: "Dibatalkan",
+    canceled: "Dibatalkan",
   };
 
   return (
-    <Badge className={`rounded-full border font-medium ${styles[status]}`}>
-      {labels[status]}
+    <Badge className={`rounded-full border font-medium ${styles[status] || "bg-muted text-foreground border-border"}`}>
+      {label || labels[status] || status}
     </Badge>
   );
 }
 
-function PaymentStatusBadge({ status }) {
+function PaymentStatusBadge({ status, label }) {
   const styles = {
     paid: "bg-accent/40 text-foreground border-transparent",
     pending: "bg-chart-3/10 text-chart-3 border-chart-3/20",
@@ -51,40 +55,16 @@ function PaymentStatusBadge({ status }) {
   };
 
   return (
-    <Badge className={`rounded-full border font-medium ${styles[status]}`}>
-      {labels[status]}
+    <Badge className={`rounded-full border font-medium ${styles[status] || "bg-muted text-foreground border-border"}`}>
+      {label || labels[status] || status}
     </Badge>
   );
 }
 
 export default function HistoryDetailPage() {
-  const location = useLocation();
+  const { id } = useParams();
   const navigate = useNavigate();
-  const booking = location.state?.booking;
-
-  // Fallback data jika tidak ada state
-  const defaultBooking = {
-    id: "PHYS-2025-001",
-    therapistName: "Dr. Siti Nurhaliza, S.Ft",
-    therapistSpecialty: "Orthopedic Physiotherapy",
-    therapistEmail: "siti.nurhaliza@physiobook.id",
-    therapistPhone: "+62 812-3456-7890",
-    location: "Jakarta",
-    address: "Jl. Sudirman No. 123, Jakarta Pusat",
-    date: "15 Des 2025",
-    fullDate: "Senin, 15 Desember 2025",
-    time: "14:00 - 15:00",
-    status: "upcoming",
-    amount: 155000,
-    serviceFee: 150000,
-    adminFee: 5000,
-    paymentStatus: "paid",
-    paymentMethod: "GoPay",
-    paymentDate: "14 Des 2025, 10:30 WIB",
-    bookingDate: "10 Des 2025, 14:20 WIB",
-  };
-
-  const currentBooking = booking || defaultBooking;
+  const { booking: currentBooking, isLoading, error, reload } = useTransactionDetail(id);
 
   const handleDownloadInvoice = () => {
     // Simulate download
@@ -113,6 +93,25 @@ export default function HistoryDetailPage() {
       </header>
 
       <main className="px-4 py-6">
+        {isLoading && (
+          <Card className="rounded-2xl p-12 text-center shadow-sm">
+            <p className="text-sm text-muted-foreground">Memuat detail transaksi...</p>
+          </Card>
+        )}
+        {!isLoading && error && (
+          <Card className="rounded-2xl p-12 text-center shadow-sm">
+            <p className="text-sm text-destructive">{error}</p>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-4 rounded-full"
+              onClick={reload}
+            >
+              Coba lagi
+            </Button>
+          </Card>
+        )}
+        {!isLoading && currentBooking && (
         <div className="mx-auto max-w-2xl space-y-4">
           {/* Booking ID & Status */}
           <Card className="rounded-2xl border-0 bg-primary-soft p-6 shadow-lg">
@@ -120,10 +119,21 @@ export default function HistoryDetailPage() {
               <div>
                 <p className="text-xs text-muted-foreground mb-1">ID Booking</p>
                 <p className="text-2xl font-bold tracking-wide">{currentBooking.id}</p>
+                {currentBooking.refNumber && (
+                  <p className="mt-1 text-xs text-muted-foreground">{currentBooking.refNumber}</p>
+                )}
               </div>
               <div className="flex flex-col items-end gap-2">
-                <StatusBadge status={currentBooking.status} />
-                <PaymentStatusBadge status={currentBooking.paymentStatus} />
+                <StatusBadge
+                  status={currentBooking.status}
+                  label={currentBooking.statusLabel}
+                />
+                {(currentBooking.paymentLabel || currentBooking.paymentStatus) && (
+                  <PaymentStatusBadge
+                    status={currentBooking.paymentStatus}
+                    label={currentBooking.paymentLabel}
+                  />
+                )}
               </div>
             </div>
             <div className="border-t border-border/50 pt-4">
@@ -149,18 +159,22 @@ export default function HistoryDetailPage() {
                       {currentBooking.therapistSpecialty}
                     </p>
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">
-                          {currentBooking.therapistEmail || "siti.nurhaliza@physiobook.id"}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">
-                          {currentBooking.therapistPhone || "+62 812-3456-7890"}
-                        </span>
-                      </div>
+                      {currentBooking.therapistEmail && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <Mail className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">
+                            {currentBooking.therapistEmail}
+                          </span>
+                        </div>
+                      )}
+                      {currentBooking.therapistPhone && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <Phone className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-muted-foreground">
+                            {currentBooking.therapistPhone}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -180,7 +194,9 @@ export default function HistoryDetailPage() {
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground">Tanggal & Waktu</p>
                     <p className="font-semibold">{currentBooking.fullDate || currentBooking.date}</p>
-                    <p className="text-sm text-muted-foreground">{currentBooking.time} WIB</p>
+                    {currentBooking.time && (
+                      <p className="text-sm text-muted-foreground">{currentBooking.time} WIB</p>
+                    )}
                   </div>
                 </div>
 
@@ -191,9 +207,9 @@ export default function HistoryDetailPage() {
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground">Lokasi</p>
                     <p className="font-semibold">{currentBooking.location}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {currentBooking.address || "Alamat akan dikirim via email"}
-                    </p>
+                    {currentBooking.address && (
+                      <p className="text-sm text-muted-foreground">{currentBooking.address}</p>
+                    )}
                   </div>
                 </div>
 
@@ -203,7 +219,7 @@ export default function HistoryDetailPage() {
                   </div>
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground">Durasi</p>
-                    <p className="font-semibold">60 menit</p>
+                    <p className="font-semibold">{currentBooking.duration || "-"}</p>
                   </div>
                 </div>
               </div>
@@ -222,27 +238,33 @@ export default function HistoryDetailPage() {
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground">Metode Pembayaran</p>
                     <p className="font-semibold">
-                      {currentBooking.paymentMethod || "E-Wallet (GoPay)"}
+                      {currentBooking.paymentMethod || currentBooking.paymentLabel || "-"}
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      {currentBooking.paymentDate || "14 Des 2025, 10:30 WIB"}
-                    </p>
+                    {currentBooking.paymentDate && (
+                      <p className="text-sm text-muted-foreground">
+                        {currentBooking.paymentDate}
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 <div className="border-t border-border pt-4 space-y-3">
+                {currentBooking.serviceFee != null && (
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Sesi Fisioterapi</span>
                     <span className="font-semibold">
-                      Rp {currentBooking.serviceFee?.toLocaleString("id-ID") || "150.000"}
+                      Rp {Number(currentBooking.serviceFee).toLocaleString("id-ID")}
                     </span>
                   </div>
+                )}
+                {currentBooking.adminFee != null && (
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Biaya Admin</span>
                     <span className="font-semibold">
-                      Rp {currentBooking.adminFee?.toLocaleString("id-ID") || "5.000"}
+                      Rp {Number(currentBooking.adminFee).toLocaleString("id-ID")}
                     </span>
                   </div>
+                )}
                   <div className="border-t border-border pt-3">
                     <div className="flex items-center justify-between">
                       <span className="font-semibold">Total Pembayaran</span>
@@ -258,49 +280,49 @@ export default function HistoryDetailPage() {
 
           {/* Actions */}
           <div className="space-y-3 pt-2">
-            {currentBooking.status === "upcoming" && (
-              <>
-                <Button
-                  size="lg"
-                  className="h-12 w-full rounded-full bg-primary text-foreground hover:bg-primary/90 font-semibold shadow-lg"
-                  asChild
-                >
-                  <Link to="/chat">
-                    <MessageSquare className="mr-2 h-5 w-5" />
-                    Chat dengan Terapis
-                  </Link>
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-12 w-full rounded-full border-2 font-semibold bg-transparent"
-                >
-                  Reschedule Booking
-                </Button>
-              </>
+            {(currentBooking.canChat ?? currentBooking.status === "upcoming") && (
+              <Button
+                size="lg"
+                className="h-12 w-full rounded-full bg-primary text-foreground hover:bg-primary/90 font-semibold shadow-lg"
+                asChild
+              >
+                <Link to="/chat">
+                  <MessageSquare className="mr-2 h-5 w-5" />
+                  Chat dengan Terapis
+                </Link>
+              </Button>
+            )}
+            {(currentBooking.canReschedule ?? currentBooking.status === "upcoming") && (
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-12 w-full rounded-full border-2 font-semibold bg-transparent"
+              >
+                Reschedule Booking
+              </Button>
             )}
 
-            {currentBooking.status === "completed" && (
-              <>
-                <Button
-                  size="lg"
-                  className="h-12 w-full rounded-full bg-primary text-foreground hover:bg-primary/90 font-semibold shadow-lg"
-                  asChild
-                >
-                  <Link to="/booking">
-                    Book Lagi dengan Terapis Ini
-                  </Link>
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-12 w-full rounded-full border-2 font-semibold bg-transparent"
-                  onClick={handleDownloadInvoice}
-                >
-                  <Download className="mr-2 h-5 w-5" />
-                  Download Invoice
-                </Button>
-              </>
+            {(currentBooking.canBookAgain ?? currentBooking.status === "completed") && (
+              <Button
+                size="lg"
+                className="h-12 w-full rounded-full bg-primary text-foreground hover:bg-primary/90 font-semibold shadow-lg"
+                asChild
+              >
+                <Link to="/booking">
+                  Book Lagi dengan Terapis Ini
+                </Link>
+              </Button>
+            )}
+            {(currentBooking.canInvoice ?? currentBooking.status === "completed") && (
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-12 w-full rounded-full border-2 font-semibold bg-transparent"
+                onClick={handleDownloadInvoice}
+              >
+                <Download className="mr-2 h-5 w-5" />
+                Download Invoice
+              </Button>
             )}
 
             {currentBooking.status === "cancelled" && (
@@ -339,6 +361,7 @@ export default function HistoryDetailPage() {
             </div>
           </Card>
         </div>
+        )}
       </main>
     </div>
   );

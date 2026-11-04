@@ -1,24 +1,23 @@
 import { useCallback } from "react";
 import { useAuthContext } from "@/contexts/AuthContext";
 
-export const API_BASE_URL = "http://76.13.23.68:8999/api/v1";
-
 /**
  * Hook untuk fetch ke API dengan Authorization header otomatis.
+ * `url` harus URL lengkap dari ENDPOINTS.
  * Jika server mengembalikan 401 (token expired/invalid), user di-logout otomatis.
  */
 export function useAuthFetch() {
   const { token, logout } = useAuthContext();
 
   const authFetch = useCallback(
-    async (endpoint, options = {}) => {
+    async (url, options = {}) => {
       const headers = {
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options.headers,
       };
 
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      const response = await fetch(url, {
         ...options,
         headers,
       });

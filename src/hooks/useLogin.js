@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useAuthContext } from "@/contexts/AuthContext";
-
-const API_BASE_URL = "http://76.13.23.68:8999/api/v1";
+import { ENDPOINTS } from "@/lib/endpoints";
 
 export function useLogin() {
   const { login } = useAuthContext();
@@ -13,7 +12,7 @@ export function useLogin() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth-user/user/login`, {
+      const response = await fetch(ENDPOINTS.LOGIN, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

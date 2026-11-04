@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useAuthFetch } from "@/hooks/useAuthFetch";
+import { ENDPOINTS } from "@/lib/endpoints";
 
 function getInitials(name) {
   if (!name) return "U";
@@ -47,7 +48,7 @@ export default function SettingsPage() {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      await authFetch("/auth-user/user/logout", { method: "POST" });
+      await authFetch(ENDPOINTS.LOGOUT, { method: "POST" });
     } catch {
       // logout locally regardless of server response
     } finally {

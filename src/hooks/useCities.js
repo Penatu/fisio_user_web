@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-
-const API_BASE_URL = "http://76.13.23.68:8999/api/v1";
+import { ENDPOINTS } from "@/lib/endpoints";
 
 export function useCities() {
   const [cities, setCities] = useState([]);
@@ -12,7 +11,7 @@ export function useCities() {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetch(`${API_BASE_URL}/homepage/cities-dropdown`);
+        const response = await fetch(ENDPOINTS.CITIES);
         const json = await response.json();
 
         if (!response.ok || !json.success) {
