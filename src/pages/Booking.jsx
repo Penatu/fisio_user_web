@@ -302,20 +302,20 @@ function ReservationSheet({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+    <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center">
       <button
         type="button"
         aria-label="Tutup"
-        className="absolute inset-0 bg-foreground/40"
+        className="absolute inset-0 animate-in bg-foreground/40 fade-in duration-200"
         onClick={onClose}
       />
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="reservation-title"
-        className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-[28px] bg-background px-5 pt-3 pb-6 shadow-2xl sm:mx-4 sm:rounded-[28px]"
+        className="relative z-10 max-h-[88vh] w-full max-w-[450px] overflow-y-auto rounded-t-[28px] bg-background px-5 pt-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-2xl animate-in slide-in-from-bottom duration-300 sm:mx-4 sm:max-w-lg sm:rounded-[28px] sm:zoom-in-95 sm:slide-in-from-bottom-0 sm:fade-in sm:pb-6"
       >
-        <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-muted sm:hidden" />
+        <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-border sm:hidden" />
         <div className="mb-5 flex items-start justify-between gap-3">
           <div>
             <h2 id="reservation-title" className="text-xl font-bold">
@@ -786,7 +786,7 @@ export default function BookingPage() {
                 disabled={!canProceedStep3}
                 onClick={() => setReservationOpen(true)}
               >
-                Lanjut Pembayaran
+                Lanjut Transaksi
                 <ChevronRight className="ml-2 h-5 w-5" />
               </Button>
             </div>

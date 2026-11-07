@@ -10,4 +10,5 @@ export const ENDPOINTS = {
   CREATE_RESERVATION: `${API_BASE_URL}/booking/create`,
   GET_TRANSCATION_HISTORY: `${API_BASE_URL}/history/list`,
   GET_TRANSACTION_DETAILS: `${API_BASE_URL}/booking/detail/:code`,
+  CANCEL_RESERVATION: `${API_BASE_URL}/booking/cancel/:code`,
 };

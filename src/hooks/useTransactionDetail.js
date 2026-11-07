@@ -134,6 +134,7 @@ export function mapTransactionDetail(payload) {
     adminFee: firstNumber(item, ["adminFee", "admin_fee"]),
     amount: firstNumber(item, ["total", "amount", "grandTotal"]) ?? 0,
     canChat: flagValue(item, "canChat"),
+    canCancel: flagValue(item, "canCancel"),
     canReschedule: flagValue(item, "canReschedule"),
     canBookAgain: flagValue(item, "canBookAgain"),
     canInvoice: flagValue(item, "canInvoice"),

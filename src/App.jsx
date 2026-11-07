@@ -13,12 +13,15 @@ import LoginPage from "@/pages/Login";
 import RegisterPage from "@/pages/Register";
 import VerifyEmailPage from "@/pages/VerifyEmail";
 import SettingsPage from "@/pages/Settings";
+import EditProfilePage from "@/pages/EditProfile";
 
 function AppContent() {
   const location = useLocation();
   const hideBottomNav =
-    ["/login", "/register", "/verify-email", "/settings"].includes(location.pathname) ||
-    location.pathname.startsWith("/history/");
+    ["/login", "/register", "/verify-email"].includes(location.pathname) ||
+    location.pathname.startsWith("/settings") ||
+    location.pathname.startsWith("/history/") ||
+    location.pathname.startsWith("/payment");
 
   return (
     <div className="min-h-screen bg-muted">
@@ -61,6 +64,14 @@ function AppContent() {
               element={
                 <ProtectedRoute>
                   <SettingsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings/profile"
+              element={
+                <ProtectedRoute>
+                  <EditProfilePage />
                 </ProtectedRoute>
               }
             />

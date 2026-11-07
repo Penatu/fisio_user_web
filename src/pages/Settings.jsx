@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -10,10 +10,11 @@ import {
   Phone,
   ChevronRight,
   Shield,
-  Bell,
   HelpCircle,
   FileText,
   Loader2,
+  Pencil,
+  Check,
 } from "lucide-react";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useAuthFetch } from "@/hooks/useAuthFetch";
@@ -28,9 +29,11 @@ function getInitials(name) {
 
 export default function SettingsPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuthContext();
   const { authFetch } = useAuthFetch();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const showSaved = Boolean(location.state?.profileUpdated);
 
   const userName =
     user?.name ||
@@ -81,15 +84,25 @@ export default function SettingsPage() {
       </header>
 
       <main className="px-4 py-6 space-y-5">
+        {showSaved && (
+          <div className="flex items-center gap-2 rounded-2xl bg-accent/40 px-4 py-3 text-sm font-medium">
+            <Check className="h-4 w-4 shrink-0" />
+            Profil berhasil diperbarui.
+          </div>
+        )}
+
         {/* Profile Card */}
         <Card className="rounded-2xl p-5 shadow-sm">
-          <div className="flex items-center gap-4">
+          <Link
+            to="/settings/profile"
+            className="flex items-center gap-4 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
             <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary text-foreground shadow-md">
               <span className="text-xl font-bold text-primary-foreground">
                 {initials}
               </span>
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="truncate text-base font-semibold">{userName}</p>
               <p className="truncate text-sm text-muted-foreground">
                 {userEmail}
@@ -100,7 +113,18 @@ export default function SettingsPage() {
                 </p>
               )}
             </div>
-          </div>
+            <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
+          </Link>
+          <Button
+            variant="secondary"
+            className="mt-4 h-11 w-full rounded-xl font-semibold"
+            asChild
+          >
+            <Link to="/settings/profile">
+              <Pencil className="h-4 w-4" />
+              Ubah profil
+            </Link>
+          </Button>
         </Card>
 
         {/* Account Info */}
