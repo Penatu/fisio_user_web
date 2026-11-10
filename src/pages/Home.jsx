@@ -10,16 +10,10 @@ import {
   ChevronRight,
   Search,
   X,
+  Bell,
 } from "lucide-react";
 import { useCities } from "@/hooks/useCities";
-import { useAuthContext } from "@/contexts/AuthContext";
-
-function getInitials(name) {
-  if (!name) return null;
-  const parts = name.trim().split(/\s+/);
-  if (parts.length === 1) return parts[0][0].toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-}
+import { useNotifications } from "@/hooks/useNotifications";
 
 function CitySearch() {
   const { cities, isLoading } = useCities();
@@ -245,10 +239,7 @@ function FeatureCarousel() {
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuthContext();
-  const initials = getInitials(
-    user?.name || user?.fullName || user?.full_name || null,
-  );
+  const { unreadCount } = useNotifications();
 
   return (
     <div className="min-h-screen bg-background">
@@ -269,18 +260,22 @@ export default function HomePage() {
             <Button
               size="sm"
               variant="ghost"
-              className="rounded-full p-0"
-              onClick={() => navigate(isAuthenticated ? "/settings" : "/login")}
+              className="relative rounded-full p-0"
+              aria-label={
+                unreadCount > 0
+                  ? `Notifikasi, ${unreadCount} belum dibaca`
+                  : "Notifikasi"
+              }
+              onClick={() => navigate("/notifications")}
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground">
-                {initials ? (
-                  <span className="text-xs font-bold text-background">
-                    {initials}
-                  </span>
-                ) : (
-                  <div className="h-5 w-5 rounded-full bg-background/30" />
-                )}
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
+                <Bell className="h-4 w-4" />
               </div>
+              {unreadCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-none text-white">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
             </Button>
           </div>
         </div>

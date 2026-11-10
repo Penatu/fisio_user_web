@@ -11,11 +11,13 @@ export function useAuthFetch() {
 
   const authFetch = useCallback(
     async (url, options = {}) => {
+      const isFormData = options.body instanceof FormData;
       const headers = {
-        "Content-Type": "application/json",
+        ...(isFormData ? {} : { "Content-Type": "application/json" }),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options.headers,
       };
+      if (isFormData) delete headers["Content-Type"];
 
       const response = await fetch(url, {
         ...options,

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useTransferPayment } from "@/hooks/useTransferPayment";
 import {
   AlertCircle,
   ArrowLeft,
@@ -15,19 +16,18 @@ import {
 } from "lucide-react";
 
 const BANKS = [
-  "BCA",
-  "Mandiri",
-  "BNI",
-  "BRI",
-  "BSI",
-  "CIMB Niaga",
-  "Permata",
-  "Danamon",
-  "BTN",
-  "OCBC",
-  "Maybank",
-  "Bank Jago",
-  "Lainnya",
+  { code: "014", name: "BCA" },
+  { code: "008", name: "Mandiri" },
+  { code: "009", name: "BNI" },
+  { code: "002", name: "BRI" },
+  { code: "451", name: "BSI" },
+  { code: "022", name: "CIMB Niaga" },
+  { code: "013", name: "Permata" },
+  { code: "011", name: "Danamon" },
+  { code: "200", name: "BTN" },
+  { code: "028", name: "OCBC" },
+  { code: "016", name: "Maybank" },
+  { code: "542", name: "Bank Jago" },
 ];
 
 const MAX_PROOF_SIZE = 5 * 1024 * 1024;
@@ -39,12 +39,23 @@ function formatRupiah(value) {
   return `Rp ${amount.toLocaleString("id-ID")}`;
 }
 
-function validate({ bankName, otherBank, accountNumber, accountName, proof }) {
-  const errors = {};
-  const resolvedBank = bankName === "Lainnya" ? otherBank.trim() : bankName;
+function bankLabel(bankCode, otherBankCode) {
+  if (bankCode === "other") return otherBankCode.trim();
+  return BANKS.find((bank) => bank.code === bankCode)?.name || bankCode;
+}
 
-  if (!resolvedBank) {
-    errors.bankName = bankName === "Lainnya" ? "Isi nama bank." : "Pilih nama bank.";
+function resolvedBankCode(bankCode, otherBankCode) {
+  return bankCode === "other" ? otherBankCode.trim() : bankCode;
+}
+
+function validate({ bankCode, otherBankCode, accountNumber, accountName, proof }) {
+  const errors = {};
+  const code = resolvedBankCode(bankCode, otherBankCode);
+
+  if (!code) {
+    errors.bankCode = bankCode === "other" ? "Isi kode bank." : "Pilih nama bank.";
+  } else if (!/^\d{3}$/.test(code)) {
+    errors.bankCode = "Kode bank harus 3 digit.";
   }
   if (!/^\d{8,20}$/.test(accountNumber)) {
     errors.accountNumber = "Nomor rekening harus 8–20 digit.";
@@ -77,14 +88,15 @@ export default function PaymentPage() {
   const backTo =
     booking?.id && booking.id !== "-" ? `/history/${booking.id}` : "/history";
 
-  const [bankName, setBankName] = useState("");
-  const [otherBank, setOtherBank] = useState("");
+  const [bankCode, setBankCode] = useState("");
+  const [otherBankCode, setOtherBankCode] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [accountName, setAccountName] = useState("");
   const [proof, setProof] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
   const [errors, setErrors] = useState({});
-  const [isProcessing, setIsProcessing] = useState(false);
+  const { mutate, isLoading, error: submitError, clearError: clearSubmitError } =
+    useTransferPayment();
 
   useEffect(() => {
     if (!proof || !proof.type.startsWith("image/")) {
@@ -110,13 +122,14 @@ export default function PaymentPage() {
     const file = event.target.files?.[0] || null;
     setProof(file);
     clearError("proof");
+    clearSubmitError();
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const nextErrors = validate({
-      bankName,
-      otherBank,
+      bankCode,
+      otherBankCode,
       accountNumber,
       accountName,
       proof,
@@ -124,15 +137,26 @@ export default function PaymentPage() {
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
-    setIsProcessing(true);
+    const code = resolvedBankCode(bankCode, otherBankCode);
+    const result = await mutate({
+      code: booking?.id,
+      bankCode: code,
+      accountNumber,
+      accountName: accountName.trim(),
+      proof,
+    });
+    if (!result.success) return;
+
     navigate("/payment/success", {
       state: {
         booking,
         payment: {
-          bankName: bankName === "Lainnya" ? otherBank.trim() : bankName,
+          bankName: bankLabel(bankCode, otherBankCode),
+          bankCode: code,
           accountNumber,
           accountName: accountName.trim(),
           proofName: proof.name,
+          transferInvoice: result.transferInvoice,
         },
       },
     });
@@ -224,45 +248,50 @@ export default function PaymentPage() {
               </p>
 
               <div className="space-y-2">
-                <Label htmlFor="bankName">Nama bank</Label>
+                <Label htmlFor="bankCode">Nama bank</Label>
                 <div className="relative">
                   <Building2 className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                   <select
-                    id="bankName"
-                    value={bankName}
+                    id="bankCode"
+                    value={bankCode}
                     onChange={(event) => {
-                      setBankName(event.target.value);
-                      clearError("bankName");
+                      setBankCode(event.target.value);
+                      clearError("bankCode");
+                      clearSubmitError();
                     }}
-                    aria-invalid={Boolean(errors.bankName)}
+                    aria-invalid={Boolean(errors.bankCode)}
                     className={`${fieldClass} w-full appearance-none pr-10 pl-10 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 ${
-                      bankName ? "text-foreground" : "text-muted-foreground"
+                      bankCode ? "text-foreground" : "text-muted-foreground"
                     }`}
                   >
                     <option value="">Pilih bank</option>
                     {BANKS.map((bank) => (
-                      <option key={bank} value={bank}>
-                        {bank}
+                      <option key={bank.code} value={bank.code}>
+                        {bank.name}
                       </option>
                     ))}
+                    <option value="other">Lainnya</option>
                   </select>
                   <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 </div>
-                <FieldError message={errors.bankName} />
+                <FieldError message={errors.bankCode} />
               </div>
 
-              {bankName === "Lainnya" && (
+              {bankCode === "other" && (
                 <div className="space-y-2">
-                  <Label htmlFor="otherBank">Nama bank lainnya</Label>
+                  <Label htmlFor="otherBankCode">Kode bank</Label>
                   <Input
-                    id="otherBank"
-                    value={otherBank}
+                    id="otherBankCode"
+                    inputMode="numeric"
+                    autoComplete="off"
+                    value={otherBankCode}
                     onChange={(event) => {
-                      setOtherBank(event.target.value);
-                      clearError("bankName");
+                      setOtherBankCode(event.target.value.replace(/\D/g, "").slice(0, 3));
+                      clearError("bankCode");
+                      clearSubmitError();
                     }}
-                    placeholder="Masukkan nama bank"
-                    aria-invalid={Boolean(errors.bankName)}
+                    placeholder="013"
+                    aria-invalid={Boolean(errors.bankCode)}
                     className={fieldClass}
                   />
                 </div>
@@ -279,6 +308,7 @@ export default function PaymentPage() {
                   onChange={(event) => {
                     setAccountNumber(event.target.value.replace(/\D/g, "").slice(0, 20));
                     clearError("accountNumber");
+                    clearSubmitError();
                   }}
                   aria-invalid={Boolean(errors.accountNumber)}
                   className={fieldClass}
@@ -296,6 +326,7 @@ export default function PaymentPage() {
                   onChange={(event) => {
                     setAccountName(event.target.value);
                     clearError("accountName");
+                    clearSubmitError();
                   }}
                   aria-invalid={Boolean(errors.accountName)}
                   className={fieldClass}
@@ -358,6 +389,7 @@ export default function PaymentPage() {
                     onClick={() => {
                       setProof(null);
                       clearError("proof");
+                      clearSubmitError();
                     }}
                   >
                     <X className="h-4 w-4" />
@@ -368,19 +400,21 @@ export default function PaymentPage() {
             </Card>
           </section>
 
-          {Object.keys(errors).length > 0 && (
+          {(submitError || Object.keys(errors).length > 0) && (
             <div className="flex items-start gap-2 rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>Lengkapi data transfer sebelum mengirim bukti.</span>
+              <span>
+                {submitError || "Lengkapi data transfer sebelum mengirim bukti."}
+              </span>
             </div>
           )}
 
           <Button
             type="submit"
             className="h-12 w-full rounded-full bg-primary font-semibold text-foreground shadow-lg hover:bg-primary/90"
-            disabled={isProcessing}
+            disabled={isLoading}
           >
-            {isProcessing ? "Mengirim..." : "Kirim bukti transfer"}
+            {isLoading ? "Mengirim..." : "Kirim bukti transfer"}
           </Button>
         </form>
       </main>

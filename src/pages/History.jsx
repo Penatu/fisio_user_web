@@ -21,7 +21,7 @@ const ORDER_STATUSES = [
   { value: "new", label: "Pesanan baru", query: "new" },
   { value: "confirmed", label: "Dikonfirmasi", query: "confirmed" },
   { value: "visit", label: "Kunjungan", query: "visit" },
-  { value: "completed", label: "Selesai", query: "completed" },
+  { value: "finished", label: "Selesai", query: "finished" },
   { value: "cancelled", label: "Dibatalkan", query: "canceled" },
 ];
 
@@ -34,7 +34,7 @@ const STATUS_LABELS = {
   confirmed: "Dikonfirmasi",
   visit: "Proses Kunjungan",
   in_progress: "Proses Kunjungan",
-  completed: "Selesai",
+  finished: "Selesai",
   canceled: "Dibatalkan",
   cancelled: "Dibatalkan",
 };
@@ -44,16 +44,12 @@ const STATUS_STYLES = {
   confirmed: "bg-primary-soft text-foreground border-transparent",
   visit: "bg-primary/15 text-foreground border-transparent",
   in_progress: "bg-primary/15 text-foreground border-transparent",
-  completed: "bg-accent/40 text-foreground border-transparent",
+  finished: "bg-accent/40 text-foreground border-transparent",
   canceled: "bg-destructive/10 text-destructive border-destructive/20",
   cancelled: "bg-destructive/10 text-destructive border-destructive/20",
 };
 
-const CHAT_HIDDEN_STATUSES = new Set([
-  "completed",
-  "canceled",
-  "cancelled",
-]);
+const CHAT_HIDDEN_STATUSES = new Set(["finished", "canceled", "cancelled"]);
 
 const CHAT_ENABLED_STATUSES = new Set(["confirmed", "visit", "in_progress"]);
 
@@ -183,7 +179,7 @@ export default function HistoryPage() {
           </Card>
           <Card className="rounded-2xl p-4 shadow-sm">
             <p className="mb-1 text-2xl font-bold">
-              {summary?.completed ?? "–"}
+              {summary?.finished ?? "–"}
             </p>
             <p className="text-xs text-muted-foreground">Selesai</p>
           </Card>
@@ -278,7 +274,9 @@ export default function HistoryPage() {
                           <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
                             <div className="flex min-w-0 items-center gap-1.5">
                               <MapPin className="h-3.5 w-3.5 shrink-0" />
-                              <span className="truncate">{booking.location}</span>
+                              <span className="truncate">
+                                {booking.location}
+                              </span>
                             </div>
                             <div className="flex min-w-0 items-center gap-1.5">
                               <Calendar className="h-3.5 w-3.5 shrink-0" />

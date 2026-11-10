@@ -30,7 +30,7 @@ function StatusBadge({ status, label }) {
     confirmed: "bg-primary-soft text-foreground border-transparent",
     processing: "bg-primary/15 text-foreground border-transparent",
     in_progress: "bg-primary/15 text-foreground border-transparent",
-    completed: "bg-accent/40 text-foreground border-transparent",
+    finished: "bg-accent/40 text-foreground border-transparent",
     canceled: "bg-destructive/10 text-destructive border-destructive/20",
     cancelled: "bg-destructive/10 text-destructive border-destructive/20",
   };
@@ -40,7 +40,7 @@ function StatusBadge({ status, label }) {
     confirmed: "Dikonfirmasi",
     visit: "Proses Kunjungan",
     in_progress: "Proses Kunjungan",
-    completed: "Selesai",
+    finished: "Selesai",
     cancelled: "Dibatalkan",
     canceled: "Dibatalkan",
   };
@@ -58,7 +58,7 @@ const ORDER_FLOW = [
   { key: "new", label: "Pesanan baru" },
   { key: "confirmed", label: "Dikonfirmasi" },
   { key: "visit", label: "Proses Kunjungan" },
-  { key: "completed", label: "Selesai" },
+  { key: "finished", label: "Selesai" },
 ];
 
 function normalizeOrderStatus(status) {
@@ -494,7 +494,7 @@ export default function HistoryDetailPage() {
                   Bayar dengan transfer
                 </Button>
               )}
-              {!["completed", "canceled"].includes(
+              {!["finished", "canceled"].includes(
                 normalizeOrderStatus(currentBooking.status),
               ) &&
                 (["confirmed", "visit", "processing"].includes(
@@ -521,7 +521,7 @@ export default function HistoryDetailPage() {
                   </Button>
                 ))}
               {(currentBooking.canBookAgain ??
-                currentBooking.status === "completed") && (
+                currentBooking.status === "finished") && (
                 <Button
                   size="lg"
                   className="h-12 w-full rounded-full bg-primary text-foreground hover:bg-primary/90 font-semibold shadow-lg"
@@ -531,7 +531,7 @@ export default function HistoryDetailPage() {
                 </Button>
               )}
               {(currentBooking.canInvoice ??
-                currentBooking.status === "completed") && (
+                currentBooking.status === "finished") && (
                 <Button
                   size="lg"
                   variant="outline"

@@ -14,12 +14,14 @@ import RegisterPage from "@/pages/Register";
 import VerifyEmailPage from "@/pages/VerifyEmail";
 import SettingsPage from "@/pages/Settings";
 import EditProfilePage from "@/pages/EditProfile";
+import NotificationsPage from "@/pages/Notifications";
 
 function AppContent() {
   const location = useLocation();
   const hideBottomNav =
     ["/login", "/register", "/verify-email"].includes(location.pathname) ||
-    location.pathname.startsWith("/settings") ||
+    location.pathname.startsWith("/settings/") ||
+    location.pathname.startsWith("/notifications") ||
     location.pathname.startsWith("/history/") ||
     location.pathname.startsWith("/payment");
 
@@ -29,6 +31,7 @@ function AppContent() {
         <div className={hideBottomNav ? "" : "pb-20"}>
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/booking" element={<BookingPage />} />
             <Route
               path="/chat"
