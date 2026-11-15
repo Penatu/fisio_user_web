@@ -5,6 +5,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import HomePage from "@/pages/Home";
 import BookingPage from "@/pages/Booking";
 import ChatPage from "@/pages/Chat";
+import ChatRoomPage from "@/pages/ChatRoom";
 import HistoryPage from "@/pages/History";
 import HistoryDetailPage from "@/pages/HistoryDetail";
 import PaymentPage from "@/pages/payment/Payment";
@@ -22,6 +23,7 @@ function AppContent() {
     ["/login", "/register", "/verify-email"].includes(location.pathname) ||
     location.pathname.startsWith("/settings/") ||
     location.pathname.startsWith("/notifications") ||
+    location.pathname.startsWith("/chat/") ||
     location.pathname.startsWith("/history/") ||
     location.pathname.startsWith("/payment");
 
@@ -38,6 +40,14 @@ function AppContent() {
               element={
                 <ProtectedRoute>
                   <ChatPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chat/:roomId"
+              element={
+                <ProtectedRoute>
+                  <ChatRoomPage />
                 </ProtectedRoute>
               }
             />

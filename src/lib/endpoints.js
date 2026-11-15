@@ -1,4 +1,5 @@
 export const API_BASE_URL = "http://76.13.23.68:8990/api/v1";
+export const SOCKET_BASE_URL = API_BASE_URL.replace(/\/api\/v1\/?$/, "");
 
 export const ENDPOINTS = {
   LOGIN: `${API_BASE_URL}/auth-user/user/login`,
@@ -14,4 +15,5 @@ export const ENDPOINTS = {
   UPLOAD_TRANSFER_PROOF: `${API_BASE_URL}/booking/payment/upload`,
   CREATE_TRANSFER_PAYMENT: `${API_BASE_URL}/booking/:code/payment`,
   GET_CHAT_ROOMS: `${API_BASE_URL}/chat/room`,
+  GET_CHAT_HISTORY: `${API_BASE_URL}/chat/history`,
 };

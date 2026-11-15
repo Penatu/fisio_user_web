@@ -505,7 +505,7 @@ export default function HistoryDetailPage() {
                     className="h-12 w-full rounded-full bg-primary font-semibold text-foreground shadow-lg hover:bg-primary/90"
                     asChild
                   >
-                    <Link to="/chat">
+                    <Link to={`/chat/${encodeURIComponent(currentBooking.id)}`}>
                       <MessageSquare className="mr-2 h-5 w-5" />
                       Chat dengan Terapis
                     </Link>

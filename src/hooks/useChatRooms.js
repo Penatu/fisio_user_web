@@ -65,19 +65,22 @@ export function mapChatRoom(item, index) {
 
   return {
     id: readText(item, ["id", "code", "roomId", "roomCode"]) || `room-${index}`,
+    yourChatRef: readText(item, ["yourChatRef"]),
+    profilePicture: readText(item, ["profilePicture", "profile_picture", "avatar"]),
     therapistName,
     therapistInitial: initials(therapistName),
     lastMessage,
     time: formatRoomTime(
       readText(item, ["lastMessageAt", "updatedAt", "lastMessageTime", "createdAt"]),
     ),
-    unread: Number(item?.unreadCount ?? item?.unread ?? 0) || 0,
+    unread: Number(item?.notifCount ?? item?.unreadCount ?? item?.unread ?? 0) || 0,
   };
 }
 
 export function useChatRooms() {
   const { authFetch } = useAuthFetch();
   const [rooms, setRooms] = useState([]);
+  const [yourChatRef, setYourChatRef] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const authFetchRef = useRef(authFetch);
@@ -95,10 +98,24 @@ export function useChatRooms() {
         throw new Error(json.message || json.messageTitle || "Gagal memuat chat.");
       }
 
-      setRooms(extractRooms(json).map(mapChatRoom));
+      const rawRooms = extractRooms(json);
+      const envelopeRef = readText(json, ["yourChatRef", "data.yourChatRef"]);
+      const mappedRooms = rawRooms.map((item, index) => {
+        const room = mapChatRoom(item, index);
+        return {
+          ...room,
+          yourChatRef: room.yourChatRef || envelopeRef,
+        };
+      });
+
+      setYourChatRef(
+        envelopeRef || mappedRooms.find((room) => room.yourChatRef)?.yourChatRef || "",
+      );
+      setRooms(mappedRooms);
     } catch (err) {
       if (err?.name === "AbortError") return;
       setRooms([]);
+      setYourChatRef("");
       setError(err?.message || "Tidak dapat memuat chat.");
     } finally {
       if (!signal?.aborted) setIsLoading(false);
@@ -111,5 +128,5 @@ export function useChatRooms() {
     return () => controller.abort();
   }, [reload]);
 
-  return { rooms, isLoading, error, reload: () => reload() };
+  return { rooms, yourChatRef, isLoading, error, reload: () => reload() };
 }
