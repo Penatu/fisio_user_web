@@ -189,7 +189,10 @@ export function useChatSocket({ roomId, userRef, onRoomError }) {
       if (!active || !payload?.message) return;
 
       const actorId = payload.actorId || "";
-      const sendAt = new Date().toISOString();
+      const sendAt =
+        typeof payload.sendAt === "string" && payload.sendAt.trim()
+          ? payload.sendAt
+          : new Date().toISOString();
       messageSeq.current += 1;
 
       setMessages((current) => [
